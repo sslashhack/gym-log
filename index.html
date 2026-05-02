@@ -1,31 +1,5751 @@
-<!DOCTYPE html>
-<!--
-  This file is the entry for ALL routes, including /preview/* canvas iframes.
-  Fonts are loaded here as non-blocking <link> tags (not CSS @import, which is render-blocking).
--->
-<html lang="en" style="height: 100%">
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Gym Log</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Gym Log" />
+    <link rel="apple-touch-icon" href="/icon.png" />
+    <meta name="theme-color" content="#ff5722" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Cinzel:wght@700;900&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #000000;
+        --bg2: #080808;
+        --bg3: #0f0f0f;
+        --accent: #ffffff;
+        --accent2: #e0e0e0;
+        --text: #e8e8e8;
+        --text2: #5a5a5a;
+        --border: #1a1a1a;
+        --success: #15803d;
+        --danger: #991b1b;
+        --radius: 14px;
+        --nav-h: 68px;
+        --red-glow: rgba(180, 0, 0, 0.18);
+        --glass-bg: rgba(0, 0, 0, 0.96);
+        --overlay-sm: rgba(255, 255, 255, 0.04);
+        --overlay-md: rgba(255, 255, 255, 0.07);
+        --overlay-lg: rgba(255, 255, 255, 0.12);
+      }
 
-    <meta property="og:title" content="Mockup Canvas" />
-    <meta property="og:description" content="UI prototyping sandbox with infinite canvas" />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Mockup Canvas" />
-    <meta name="twitter:description" content="UI prototyping sandbox with infinite canvas" />
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-    <title>Mockup Canvas</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
-    <!-- Non-blocking font bundle: renders with fallback fonts immediately, swaps in when loaded -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" media="print" onload="this.media='all'"
-          href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fira+Code:wght@300..700&family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&family=Oxanium:wght@200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fira+Code:wght@300..700&family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&family=Oxanium:wght@200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"></noscript>
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        min-height: 100dvh;
+        overflow-x: hidden;
+      }
+
+      .app {
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ── HEADER ── */
+      .header {
+        background: var(--glass-bg);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 18px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(8px);
+      }
+
+      .header-logo {
+        font-family: "Pirata One", serif;
+        font-size: 22px;
+        font-weight: 400;
+        color: var(--accent);
+        letter-spacing: 1px;
+        text-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+      }
+
+      .header-sub {
+        font-size: 11px;
+        color: var(--text2);
+        font-style: italic;
+        max-width: 180px;
+        text-align: right;
+        line-height: 1.3;
+      }
+
+      /* ── TICKER ── */
+      .ticker-wrap {
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        height: 22px;
+        overflow: hidden;
+        flex-shrink: 0;
+        position: sticky;
+        top: 50px;
+        z-index: 9;
+      }
+
+      .ticker {
+        font-family: "VT323", monospace;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.28);
+        letter-spacing: 2.5px;
+        line-height: 22px;
+      }
+
+      /* ── MAIN ── */
+      .main {
+        flex: 1;
+        padding: 16px 14px calc(var(--nav-h) + 12px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+
+      /* ── BOTTOM NAV ── */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: var(--nav-h);
+        background: var(--glass-bg);
+        border-top: 1px solid var(--border);
+        display: flex;
+        z-index: 20;
+        padding-bottom: env(safe-area-inset-bottom);
+        backdrop-filter: blur(10px);
+      }
+
+      .nav-btn {
+        flex: 1;
+        background: none;
+        border: none;
+        color: var(--text2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        cursor: pointer;
+        padding: 6px 2px;
+        transition: color 0.2s;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        text-transform: uppercase;
+        font-family: inherit;
+      }
+
+      .nav-btn svg {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+      .nav-btn.active {
+        color: var(--accent);
+      }
+
+      /* ── HOME ── */
+      .home-hero {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 26px 20px 20px;
+        margin-bottom: 14px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .home-hero::before {
+        content: "";
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 160px;
+        height: 160px;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.04) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+
+      .home-hero::after {
+        content: "✦";
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-size: 12px;
+        color: rgba(180, 0, 0, 0.3);
+        pointer-events: none;
+      }
+
+      .home-greeting {
+        font-family: "VT323", monospace;
+        font-size: 15px;
+        font-weight: 400;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 4px;
+        opacity: 0.85;
+      }
+
+      .home-title {
+        font-family: "Cinzel", serif;
+        font-size: 22px;
+        font-weight: 900;
+        color: var(--text);
+        line-height: 1.2;
+        margin-bottom: 4px;
+        letter-spacing: 1px;
+      }
+
+      .home-date {
+        font-size: 13px;
+        color: var(--text2);
+        margin-bottom: 18px;
+      }
+
+      .home-quote-box {
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 8px;
+      }
+
+      .home-quote-text {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text);
+        line-height: 1.55;
+        font-style: italic;
+      }
+
+      .home-quote-shuffle {
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 5px 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-family: inherit;
+      }
+
+      .home-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .home-stat {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 8px;
+        text-align: center;
+      }
+
+      .home-stat-val {
+        font-family: "VT323", monospace;
+        font-size: 30px;
+        font-weight: 400;
+        color: var(--accent);
+        display: block;
+        line-height: 1;
+        margin-bottom: 4px;
+      }
+
+      .home-stat-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text2);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+
+      .home-cta {
+        background: var(--accent);
+        color: #000;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 800;
+        padding: 16px;
+        width: 100%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.15s;
+        font-family: inherit;
+      }
+
+      .home-cta:active {
+        background: var(--accent2);
+        transform: scale(0.98);
+      }
+
+      /* ── CARDS ── */
+      .card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 12px;
+        backdrop-filter: blur(4px);
+      }
+
+      .card-title {
+        font-family: "Cinzel", serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 14px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .card-title::before {
+        content: "† ";
+        color: var(--accent);
+        opacity: 0.7;
+        font-weight: 400;
+      }
+
+      .badge {
+        background: var(--accent);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 20px;
+      }
+
+      /* ── FORM ── */
+      .form-group {
+        margin-bottom: 14px;
+      }
+
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text2);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-bottom: 6px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="date"],
+      textarea,
+      select {
+        width: 100%;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 16px;
+        padding: 12px 14px;
+        outline: none;
+        transition: border-color 0.2s;
+        -webkit-appearance: none;
+        appearance: none;
+        font-family: inherit;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: var(--accent);
+      }
+      textarea {
+        min-height: 72px;
+        resize: vertical;
+      }
+      select option {
+        background: var(--bg3);
+      }
+
+      .unit-toggle {
+        display: flex;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .unit-btn {
+        background: none;
+        border: none;
+        color: var(--text2);
+        padding: 0 14px;
+        height: 44px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s;
+        flex: 1;
+        font-family: inherit;
+      }
+
+      .unit-btn.active {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      /* ── SETS LOG FORM ── */
+      .sets-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .sets-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text2);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
+
+      .sets-list {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-bottom: 8px;
+      }
+
+      .set-row {
+        display: grid;
+        grid-template-columns: 26px 1fr 1fr 36px;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .set-num {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--text2);
+        text-align: center;
+      }
+
+      .set-row input {
+        padding: 10px 8px;
+        font-size: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .set-row input::placeholder {
+        font-size: 13px;
+      }
+
+      .set-remove {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text2);
+        width: 36px;
+        height: 36px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+        padding: 0;
+        flex-shrink: 0;
+      }
+
+      .set-remove:active {
+        color: var(--danger);
+        border-color: var(--danger);
+      }
+      .set-remove svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      .add-set-btn {
+        width: 100%;
+        background: var(--bg3);
+        border: 1px dashed var(--border);
+        border-radius: 10px;
+        color: var(--text2);
+        padding: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.15s;
+        margin-bottom: 14px;
+        font-family: inherit;
+      }
+
+      .add-set-btn:active {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      /* ── BUTTONS ── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: none;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 800;
+        padding: 14px 20px;
+        cursor: pointer;
+        transition: all 0.15s;
+        width: 100%;
+        font-family: inherit;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: var(--bg);
+      }
+      .btn-primary:active {
+        background: var(--accent2);
+        transform: scale(0.98);
+      }
+      .btn-danger {
+        background: #2a1010;
+        color: var(--danger);
+        border: 1px solid #441a1a;
+      }
+      .btn-ghost {
+        background: var(--bg3);
+        color: var(--text);
+        border: 1px solid var(--border);
+        width: auto;
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+
+      /* ── TOAST ── */
+      .toast {
+        position: fixed;
+        bottom: calc(var(--nav-h) + 14px);
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: var(--success);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 800;
+        padding: 12px 24px;
+        border-radius: 30px;
+        z-index: 999;
+        opacity: 0;
+        transition: all 0.3s;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* ── SECTION TITLE ── */
+      .section-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text2);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ── HISTORY ── */
+      .exercise-group {
+        margin-bottom: 20px;
+      }
+
+      .exercise-group-title {
+        font-size: 13px;
+        font-weight: 900;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .pr-entry {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+        margin-bottom: 8px;
+      }
+
+      .pr-entry-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .pr-main {
+        font-size: 22px;
+        font-weight: 900;
+        color: var(--text);
+        line-height: 1;
+      }
+      .pr-main span {
+        font-size: 15px;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .pr-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 6px;
+      }
+
+      .pr-tag {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 12px;
+        color: var(--text2);
+        padding: 3px 8px;
+        font-weight: 600;
+      }
+
+      .pr-best-badge {
+        background: linear-gradient(135deg, #ff5722, #ff7043);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 900;
+        padding: 3px 8px;
+        border-radius: 20px;
+        white-space: nowrap;
+      }
+
+      .pr-date {
+        font-size: 12px;
+        color: var(--text2);
+        margin-top: 6px;
+      }
+      .pr-notes {
+        font-size: 13px;
+        color: var(--text2);
+        margin-top: 5px;
+        font-style: italic;
+        line-height: 1.4;
+      }
+
+      .icon-btn {
+        background: none;
+        border: none;
+        color: var(--text2);
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        transition: color 0.15s;
+        flex-shrink: 0;
+      }
+
+      .icon-btn:active {
+        color: var(--danger);
+      }
+      .icon-btn svg {
+        width: 17px;
+        height: 17px;
+      }
+
+      /* ── ALL SETS EXPANDER ── */
+      .sets-expander {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+      }
+
+      .sets-toggle {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text2);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 7px 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        width: 100%;
+        justify-content: center;
+        font-family: inherit;
+        transition: all 0.15s;
+      }
+
+      .sets-toggle:active {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .sets-toggle svg {
+        transition: transform 0.2s;
+      }
+      .sets-toggle.open svg {
+        transform: rotate(180deg);
+      }
+
+      .all-sets-list {
+        display: none;
+        margin-top: 8px;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .all-sets-list.open {
+        display: flex;
+      }
+
+      .set-entry-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: var(--bg3);
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+
+      .set-entry-num {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--text2);
+        width: 18px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .set-entry-weight {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--text);
+      }
+      .set-entry-weight span {
+        font-size: 12px;
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .set-entry-reps {
+        font-size: 13px;
+        color: var(--text2);
+        font-weight: 600;
+        margin-left: auto;
+      }
+      .set-pr-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        flex-shrink: 0;
+      }
+
+      /* ── PROGRESS ── */
+      .progress-bar-wrap {
+        background: var(--bg3);
+        border-radius: 100px;
+        height: 8px;
+        overflow: hidden;
+        margin: 6px 0 4px;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+        border-radius: 100px;
+        transition: width 0.5s ease;
+      }
+      .progress-bar.complete {
+        background: linear-gradient(90deg, var(--success), #81c784);
+      }
+      .progress-label {
+        font-size: 11px;
+        color: var(--text2);
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+      }
+      .progress-label .pct {
+        color: var(--accent);
+        font-weight: 800;
+      }
+      .progress-label .pct.done {
+        color: var(--success);
+      }
+
+      /* ── CHARTS ── */
+      .chart-wrap {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 14px;
+      }
+      .chart-canvas-wrap {
+        position: relative;
+        height: 220px;
+      }
+      .chart-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .stat-box {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 6px;
+        text-align: center;
+      }
+      .stat-val {
+        font-size: 18px;
+        font-weight: 900;
+        color: var(--accent);
+        display: block;
+      }
+      .stat-label {
+        font-size: 10px;
+        color: var(--text2);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      /* ── GOALS ── */
+      .goal-item {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+        margin-bottom: 10px;
+      }
+      .goal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .goal-exercise {
+        font-size: 15px;
+        font-weight: 900;
+        color: var(--text);
+      }
+      .goal-target {
+        font-size: 13px;
+        color: var(--text2);
+        margin-bottom: 8px;
+      }
+      .goal-target strong {
+        color: var(--accent2);
+      }
+
+      /* ── QUOTES ── */
+      .quote-hero {
+        background: linear-gradient(135deg, #1a0e00, #2a1500);
+        border: 1px solid rgba(255, 87, 34, 0.22);
+        border-radius: var(--radius);
+        padding: 22px 18px;
+        margin-bottom: 14px;
+        text-align: center;
+      }
+      .quote-text {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1.5;
+        font-style: italic;
+      }
+      .quote-shuffle {
+        margin-top: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text2);
+        padding: 7px 14px;
+        border-radius: 8px;
+        font-size: 12px;
+        cursor: pointer;
+        font-weight: 700;
+        font-family: inherit;
+        transition: all 0.15s;
+      }
+      .quote-shuffle:active {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .quote-item {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .quote-item-text {
+        flex: 1;
+        font-size: 14px;
+        color: var(--text);
+        line-height: 1.5;
+        font-style: italic;
+      }
+
+      /* ── CONFIRM ── */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.78);
+        z-index: 200;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 0 14px 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .overlay.show {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .confirm-sheet {
+        background: var(--bg2);
+        border-radius: 20px;
+        padding: 24px 20px;
+        width: 100%;
+        max-width: 420px;
+        transform: translateY(40px);
+        transition: transform 0.3s;
+        border: 1px solid var(--border);
+      }
+      .overlay.show .confirm-sheet {
+        transform: translateY(0);
+      }
+      .confirm-title {
+        font-size: 17px;
+        font-weight: 900;
+        margin-bottom: 8px;
+      }
+      .confirm-body {
+        font-size: 14px;
+        color: var(--text2);
+        margin-bottom: 20px;
+        line-height: 1.5;
+      }
+      .confirm-btns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      /* ── EMPTY ── */
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text2);
+      }
+      .empty-icon {
+        font-size: 44px;
+        margin-bottom: 12px;
+        display: block;
+      }
+      .empty-state p {
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .empty-state strong {
+        color: var(--text);
+      }
+
+      .weight-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        align-items: stretch;
+      }
+
+      /* ── BAR CALCULATOR ── */
+      .bar-viz-wrap {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px 10px;
+        margin-bottom: 12px;
+        overflow: hidden;
+      }
+
+      #barbellCanvas {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .bar-total {
+        text-align: center;
+        margin: 10px 0 4px;
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .bar-total-kg {
+        font-size: 32px;
+        font-weight: 900;
+        color: var(--accent);
+        line-height: 1;
+      }
+
+      .bar-total-sep {
+        font-size: 18px;
+        color: var(--border);
+        font-weight: 300;
+      }
+
+      .bar-total-lbs {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text2);
+        line-height: 1;
+      }
+
+      .bar-sub {
+        text-align: center;
+        font-size: 12px;
+        color: var(--text2);
+        font-weight: 600;
+        margin-bottom: 14px;
+      }
+
+      .plate-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .plate-item {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .plate-dot {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 900;
+        color: #fff;
+        flex-shrink: 0;
+        text-align: center;
+        line-height: 1.2;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+      }
+
+      .plate-label {
+        flex: 1;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .plate-sub {
+        font-size: 10px;
+        color: var(--text2);
+        font-weight: 500;
+      }
+
+      .plate-controls {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .plate-count {
+        font-size: 16px;
+        font-weight: 900;
+        color: var(--text);
+        min-width: 22px;
+        text-align: center;
+      }
+
+      .plate-btn {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.1s;
+        padding: 0;
+        line-height: 1;
+        font-family: inherit;
+      }
+
+      .plate-btn:active {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+
+      .bar-breakdown {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+        font-size: 13px;
+        color: var(--text2);
+        line-height: 2;
+        margin-bottom: 10px;
+      }
+
+      .bar-reset {
+        width: 100%;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text2);
+        font-size: 14px;
+        font-weight: 700;
+        padding: 12px;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.15s;
+      }
+
+      .bar-reset:active {
+        color: var(--danger);
+        border-color: var(--danger);
+      }
+
+      /* ── TRIBAL BACKGROUND ── */
+      .tribal-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .tribal-bg svg {
+        width: 88vw;
+        max-width: 680px;
+        height: auto;
+      }
+
+      /* ── WORKOUT PICKER ── */
+      .log-step {
+        padding: 0;
+      }
+
+      .workout-question {
+        font-family: "Cinzel", serif;
+        font-size: 19px;
+        font-weight: 700;
+        color: var(--text);
+        text-align: center;
+        padding: 28px 20px 22px;
+        line-height: 1.35;
+        letter-spacing: 0.3px;
+      }
+
+      .category-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 0 0 20px;
+      }
+
+      .cat-tile {
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 26px 14px 22px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: inherit;
+        text-align: center;
+      }
+      .cat-tile:active {
+        background: var(--overlay-md);
+        border-color: var(--accent);
+        transform: scale(0.97);
+      }
+      .cat-icon {
+        font-size: 22px;
+        color: var(--accent);
+        line-height: 1;
+        margin-bottom: 2px;
+      }
+      .cat-name {
+        font-family: "Cinzel", serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+      .cat-sub {
+        font-size: 11px;
+        color: var(--text2);
+        font-weight: 500;
+      }
+
+      /* ── EXERCISE SEARCH ── */
+      .ex-search-wrap {
+        position: relative;
+        margin-bottom: 10px;
+      }
+      .ex-search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text2);
+        pointer-events: none;
+      }
+      .ex-search {
+        width: 100%;
+        box-sizing: border-box;
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 14px;
+        padding: 10px 12px 10px 34px;
+        outline: none;
+        transition: border-color 0.15s;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      .ex-search:focus {
+        border-color: var(--accent);
+      }
+      .ex-search::placeholder {
+        color: var(--text2);
+      }
+      .ex-search::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+      }
+
+      /* ── CUSTOM SPLITS ── */
+      .splits-section {
+        margin-top: 10px;
+      }
+      .split-cat-tile {
+        display: flex;
+        align-items: center;
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-bottom: 6px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .split-cat-tile:active {
+        background: var(--overlay-md);
+      }
+      .split-cat-main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        cursor: pointer;
+      }
+      .split-cat-icon-wrap {
+        font-size: 20px;
+        color: var(--accent);
+      }
+      .split-cat-info {
+        flex: 1;
+      }
+      .split-cat-name {
+        font-family: "Cinzel", serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .split-cat-sub {
+        font-size: 11px;
+        color: var(--text2);
+        margin-top: 2px;
+      }
+      .split-cat-btns {
+        display: flex;
+        gap: 4px;
+        padding: 0 10px;
+      }
+      .split-cat-btn {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text2);
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .split-cat-btn:active {
+        color: var(--text);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+      .split-cat-btn.del:active {
+        color: #ff5050;
+        border-color: #ff5050;
+      }
+      .new-split-btn {
+        width: 100%;
+        background: transparent;
+        border: 1px dashed var(--overlay-lg);
+        border-radius: 12px;
+        color: var(--text2);
+        padding: 12px;
+        font-family: "Cinzel", serif;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        margin-top: 4px;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .new-split-btn:active {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* ── SPLIT OVERLAY ── */
+      .split-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(5px);
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+      }
+      .split-overlay.open {
+        display: flex;
+      }
+      .split-sheet {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-bottom: none;
+        border-radius: 20px 20px 0 0;
+        width: 100%;
+        max-width: 500px;
+        padding: 20px 20px 48px;
+        max-height: 86vh;
+        overflow-y: auto;
+      }
+      .split-sheet-title {
+        font-family: "Cinzel", serif;
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .split-sheet-close {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text2);
+        cursor: pointer;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: inherit;
+        transition: all 0.15s;
+        letter-spacing: 0.5px;
+      }
+      .split-name-input {
+        width: 100%;
+        box-sizing: border-box;
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-family: "Cinzel", serif;
+        font-size: 15px;
+        font-weight: 700;
+        padding: 10px 12px;
+        margin-bottom: 18px;
+        outline: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .split-name-input:focus {
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+      .split-name-input::placeholder {
+        text-transform: none;
+        font-weight: 500;
+        letter-spacing: 0;
+      }
+      .split-section-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.8px;
+        color: var(--text2);
+        margin-bottom: 10px;
+      }
+      .split-ex-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        margin-bottom: 4px;
+        transition: all 0.12s;
+        user-select: none;
+      }
+      .split-ex-item.selected {
+        background: var(--overlay-md);
+        border-color: var(--overlay-lg);
+      }
+      .split-ex-check {
+        width: 18px;
+        height: 18px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+        transition: all 0.1s;
+      }
+      .split-ex-item.selected .split-ex-check {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--bg);
+      }
+      .split-ex-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .split-save-btn {
+        width: 100%;
+        background: var(--accent);
+        color: var(--bg);
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-family: "Cinzel", serif;
+        font-size: 14px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        margin-top: 16px;
+        transition: opacity 0.15s;
+      }
+      .split-save-btn:active {
+        opacity: 0.8;
+      }
+
+      /* ── BAR WEIGHT ROW ── */
+      .bar-weight-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 2px 0;
+      }
+      .bar-weight-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .bar-weight-input {
+        width: 68px;
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-size: 16px;
+        font-weight: 700;
+        font-family: "Cinzel", serif;
+        text-align: center;
+        padding: 5px 8px;
+        outline: none;
+      }
+      .bar-weight-input:focus {
+        border-color: rgba(255, 255, 255, 0.35);
+      }
+      .bar-weight-input::-webkit-inner-spin-button,
+      .bar-weight-input::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      /* ── PLATE UNIT LABEL ── */
+      .plate-unit-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.8px;
+        color: var(--text2);
+        margin: 12px 0 8px;
+      }
+      .plate-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .plate-tab {
+        flex: 1;
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text2);
+        cursor: pointer;
+        padding: 7px 0;
+        font-size: 11px;
+        font-weight: 700;
+        font-family: "Cinzel", serif;
+        letter-spacing: 1.5px;
+        transition: all 0.15s;
+      }
+      .plate-tab.active {
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
+      }
+
+      /* ── BAR TRACK OVERLAY ── */
+      .bar-track-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(5px);
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+      }
+      .bar-track-overlay.open {
+        display: flex;
+      }
+      .bar-track-sheet {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-bottom: none;
+        border-radius: 20px 20px 0 0;
+        width: 100%;
+        max-width: 500px;
+        padding: 20px 20px 48px;
+        max-height: 82vh;
+        overflow-y: auto;
+      }
+      .bar-track-weight {
+        font-family: "VT323", monospace;
+        font-size: 28px;
+        color: var(--accent);
+        text-align: center;
+        margin: -4px 0 16px;
+        letter-spacing: 2px;
+      }
+
+      /* ── SPLIT SEARCH / ADD EX ── */
+      .split-search-wrap {
+        position: relative;
+        margin-bottom: 8px;
+      }
+      .split-search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text2);
+        pointer-events: none;
+      }
+      .split-search {
+        width: 100%;
+        box-sizing: border-box;
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 14px;
+        padding: 9px 12px 9px 34px;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        transition: border-color 0.15s;
+      }
+      .split-search:focus {
+        border-color: var(--accent);
+      }
+      .split-search::placeholder {
+        color: var(--text2);
+      }
+      .split-search::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+      }
+      .split-add-ex-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .split-add-ex-input {
+        flex: 1;
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 13px;
+        padding: 8px 10px;
+        outline: none;
+        min-width: 0;
+      }
+      .split-add-ex-input:focus {
+        border-color: var(--accent);
+      }
+      .split-add-ex-btn {
+        background: var(--overlay-md);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        cursor: pointer;
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: 700;
+        font-family: "Cinzel", serif;
+        white-space: nowrap;
+        transition: all 0.15s;
+      }
+      .split-add-ex-btn:active {
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
+      }
+
+      /* ── SETTINGS: MOVEMENTS ── */
+      .movements-group {
+        margin-bottom: 16px;
+      }
+      .movements-group-title {
+        font-family: "Cinzel", serif;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      .movements-reset-btn {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text2);
+        cursor: pointer;
+        padding: 3px 8px;
+        font-size: 10px;
+        font-weight: 700;
+        font-family: "Cinzel", serif;
+        letter-spacing: 0.5px;
+        transition: all 0.15s;
+      }
+      .movements-reset-btn:active {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .movements-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 8px;
+        max-height: 160px;
+        overflow-y: auto;
+      }
+      .movement-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 10px;
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+      .movement-item-name {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .movement-del-btn {
+        background: none;
+        border: none;
+        color: var(--text2);
+        cursor: pointer;
+        font-size: 16px;
+        padding: 0 4px;
+        line-height: 1;
+        transition: color 0.15s;
+      }
+      .movement-del-btn:active {
+        color: #ff5050;
+      }
+      .movements-add-row {
+        display: flex;
+        gap: 8px;
+      }
+      .movements-add-input {
+        flex: 1;
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 13px;
+        padding: 7px 10px;
+        outline: none;
+        min-width: 0;
+      }
+      .movements-add-input:focus {
+        border-color: var(--accent);
+      }
+      .movements-add-btn {
+        background: var(--overlay-md);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        cursor: pointer;
+        padding: 7px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: "Cinzel", serif;
+        white-space: nowrap;
+        transition: all 0.15s;
+      }
+      .movements-add-btn:active {
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
+      }
+
+      /* ── SETTINGS: PALETTES ── */
+      .palette-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+        margin-bottom: 4px;
+      }
+      .palette-swatch {
+        border-radius: 10px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: border-color 0.15s;
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: flex-end;
+        padding: 6px 7px;
+        position: relative;
+        overflow: hidden;
+      }
+      .palette-swatch.active {
+        border-color: var(--accent);
+      }
+      .palette-swatch-accent {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .palette-swatch-name {
+        font-family: "Cinzel", serif;
+        font-size: 8px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-top: 3px;
+        line-height: 1;
+        text-align: right;
+      }
+
+      /* ── EXERCISE LIST STEP ── */
+      .back-btn {
+        background: none;
+        border: none;
+        color: var(--text2);
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 0 0 14px;
+        font-family: inherit;
+        transition: color 0.15s;
+      }
+      .back-btn:active {
+        color: var(--accent);
+      }
+
+      .step-title {
+        font-family: "Cinzel", serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text2);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 12px;
+      }
+
+      .exercise-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 12px;
+      }
+
+      .ex-tile {
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        padding: 14px 16px;
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: left;
+        font-family: inherit;
+        transition: all 0.12s;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .ex-tile::after {
+        content: "›";
+        color: var(--text2);
+        font-size: 20px;
+        font-weight: 300;
+      }
+      .ex-tile:active {
+        background: var(--overlay-md);
+        border-color: var(--accent);
+      }
+
+      .custom-ex-form {
+        padding-bottom: 20px;
+      }
+
+      /* ── EXERCISE HERO (step 2) ── */
+      .exercise-hero {
+        text-align: center;
+        padding: 16px 0 12px;
+        margin-bottom: 6px;
+      }
+      .exercise-silhouette-wrap {
+        height: 200px;
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+      .exercise-sil-img {
+        max-height: 192px;
+        max-width: 90%;
+        object-fit: contain;
+        background: rgba(255, 255, 255, 0.93);
+        border-radius: 14px;
+        padding: 10px;
+        transition:
+          opacity 0.15s,
+          transform 0.15s;
+      }
+      .exercise-sil-img:hover {
+        opacity: 0.95;
+        transform: scale(1.01);
+      }
+      .exercise-sil-placeholder {
+        height: 192px;
+        width: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Cinzel", serif;
+        font-size: 68px;
+        color: rgba(255, 255, 255, 0.18);
+        border: 2px dashed rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        transition: all 0.15s;
+      }
+      .exercise-sil-placeholder:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        color: rgba(255, 255, 255, 0.35);
+      }
+      .sil-change-hint {
+        position: absolute;
+        bottom: 2px;
+        right: 6px;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: var(--text2);
+        pointer-events: none;
+      }
+      /* ── EXERCISE LIST WITH DELETE ── */
+      .ex-tile-row {
+        display: flex;
+        gap: 6px;
+        align-items: stretch;
+      }
+      .ex-tile-del-btn {
+        background: rgba(255, 50, 50, 0.06);
+        border: 1px solid rgba(255, 50, 50, 0.18);
+        border-radius: 10px;
+        color: rgba(255, 100, 100, 0.6);
+        padding: 0 12px;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all 0.15s;
+      }
+      .ex-tile-del-btn:active {
+        background: rgba(255, 50, 50, 0.18);
+        color: #ff5050;
+      }
+      /* ── DAY CLEAR BTN ── */
+      .day-clear-btn {
+        background: none;
+        border: none;
+        color: rgba(255, 100, 100, 0.32);
+        cursor: pointer;
+        padding: 3px;
+        transition: color 0.15s;
+        flex-shrink: 0;
+      }
+      .day-clear-btn:active {
+        color: #ff6060;
+      }
+      .exercise-hero-name {
+        font-family: "Cinzel", serif;
+        font-size: 20px;
+        font-weight: 900;
+        color: var(--text);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      /* ── STARFIELD ── */
+      .starfield {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+          radial-gradient(
+            1px 1px at 5% 8%,
+            rgba(255, 255, 255, 0.55) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 12% 25%,
+            rgba(255, 255, 255, 0.35) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 20% 60%,
+            rgba(255, 255, 255, 0.5) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 28% 15%,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 35% 45%,
+            rgba(255, 255, 255, 0.4) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 45% 75%,
+            rgba(255, 255, 255, 0.55) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 52% 30%,
+            rgba(255, 255, 255, 0.35) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 60% 85%,
+            rgba(255, 255, 255, 0.45) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 68% 12%,
+            rgba(255, 255, 255, 0.6) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 75% 55%,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 82% 35%,
+            rgba(255, 255, 255, 0.5) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 90% 70%,
+            rgba(255, 255, 255, 0.4) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 97% 20%,
+            rgba(255, 255, 255, 0.45) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 8% 50%,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 15% 80%,
+            rgba(255, 255, 255, 0.55) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 22% 38%,
+            rgba(255, 255, 255, 0.35) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 30% 92%,
+            rgba(255, 255, 255, 0.6) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 40% 5%,
+            rgba(255, 255, 255, 0.45) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 50% 65%,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 58% 48%,
+            rgba(255, 255, 255, 0.5) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 65% 93%,
+            rgba(255, 255, 255, 0.4) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 72% 22%,
+            rgba(255, 255, 255, 0.45) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 80% 68%,
+            rgba(255, 255, 255, 0.6) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 88% 42%,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 95% 85%,
+            rgba(255, 255, 255, 0.5) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 3% 72%,
+            rgba(255, 255, 255, 0.4) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 18% 10%,
+            rgba(255, 255, 255, 0.45) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 33% 62%,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 47% 88%,
+            rgba(255, 255, 255, 0.55) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 55% 18%,
+            rgba(255, 255, 255, 0.35) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 63% 72%,
+            rgba(255, 255, 255, 0.6) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 78% 95%,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 85% 5%,
+            rgba(255, 255, 255, 0.45) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 93% 55%,
+            rgba(255, 255, 255, 0.5) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 42% 28%,
+            rgba(255, 255, 255, 0.35) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 70% 38%,
+            rgba(255, 255, 255, 0.4) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 16% 95%,
+            rgba(255, 255, 255, 0.45) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 25% 52%,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 37% 78%,
+            rgba(255, 255, 255, 0.55) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 48% 42%,
+            rgba(255, 255, 255, 0.25) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 57% 7%,
+            rgba(255, 255, 255, 0.45) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 67% 60%,
+            rgba(255, 255, 255, 0.4) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 76% 82%,
+            rgba(255, 255, 255, 0.5) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 86% 25%,
+            rgba(255, 255, 255, 0.35) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 94% 48%,
+            rgba(255, 255, 255, 0.45) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 10% 68%,
+            rgba(255, 255, 255, 0.4) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 44% 55%,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            2px 2px at 62% 33%,
+            rgba(255, 255, 255, 0.5) 0%,
+            transparent 0%
+          ),
+          radial-gradient(
+            1px 1px at 91% 88%,
+            rgba(255, 255, 255, 0.35) 0%,
+            transparent 0%
+          );
+      }
+
+      /* ── HEADER GEAR + SYNC ── */
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .header-gear {
+        background: none;
+        border: none;
+        color: var(--text2);
+        cursor: pointer;
+        padding: 4px;
+        transition: color 0.15s;
+        flex-shrink: 0;
+      }
+      .header-gear:active {
+        color: var(--accent);
+      }
+      .sync-btn {
+        background: none;
+        border: none;
+        cursor: default;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        font-size: 15px;
+        line-height: 1;
+        position: relative;
+      }
+      .sync-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        position: absolute;
+        bottom: 1px;
+        right: 1px;
+        background: transparent;
+        transition: background 0.3s;
+      }
+      .sync-dot.ok {
+        background: #22c55e;
+      }
+      .sync-dot.error {
+        background: #ef4444;
+      }
+      .sync-dot.busy {
+        background: #f59e0b;
+        animation: sync-pulse 0.8s ease-in-out infinite;
+      }
+      @keyframes sync-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+      .sync-toast {
+        position: fixed;
+        bottom: calc(var(--nav-h) + 14px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        padding: 6px 16px;
+        border-radius: 20px;
+        z-index: 300;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        white-space: nowrap;
+      }
+      .sync-toast.visible {
+        opacity: 1;
+      }
+
+      /* ── SETTINGS OVERLAY ── */
+      .settings-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(5px);
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+      }
+      .settings-overlay.open {
+        display: flex;
+      }
+      .settings-sheet {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-bottom: none;
+        border-radius: 20px 20px 0 0;
+        width: 100%;
+        max-width: 500px;
+        padding: 20px 20px 40px;
+        max-height: 82vh;
+        overflow-y: auto;
+      }
+      .settings-title {
+        font-family: "Cinzel", serif;
+        font-size: 15px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text);
+        margin-bottom: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .settings-close-btn {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text2);
+        cursor: pointer;
+        padding: 4px 10px;
+        font-size: 13px;
+        font-weight: 700;
+        font-family: inherit;
+        transition: all 0.15s;
+      }
+      .settings-close-btn:active {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .settings-section-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text2);
+        text-transform: uppercase;
+        letter-spacing: 1.8px;
+        margin-bottom: 10px;
+      }
+      .theme-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+      .theme-swatch {
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        height: 60px;
+        cursor: pointer;
+        transition: border-color 0.15s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding-bottom: 7px;
+        position: relative;
+        overflow: hidden;
+      }
+      .theme-swatch.active {
+        border-color: rgba(255, 255, 255, 0.6);
+      }
+      .theme-swatch-dot {
+        width: 22px;
+        height: 6px;
+        border-radius: 3px;
+        margin-bottom: 5px;
+      }
+      .theme-swatch-name {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .color-picker-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+      .color-picker-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        flex: 1;
+      }
+      .color-picker-input {
+        width: 46px;
+        height: 46px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        cursor: pointer;
+        padding: 3px;
+        background: none;
+      }
+
+      /* ── DAY CARD HISTORY ── */
+      .day-card {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        margin-bottom: 8px;
+        overflow: hidden;
+        background: var(--bg2);
+      }
+      .day-card-header {
+        display: flex;
+        align-items: center;
+        padding: 14px 16px;
+        cursor: pointer;
+        gap: 8px;
+        user-select: none;
+      }
+      .day-card-date {
+        font-family: "Cinzel", serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+        flex: 1;
+      }
+      .day-cat-badge {
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        padding: 2px 7px;
+        border-radius: 20px;
+        color: var(--text2);
+      }
+      .day-set-count {
+        font-size: 12px;
+        color: var(--text2);
+        font-weight: 500;
+      }
+      .day-chevron {
+        color: var(--text2);
+        transition: transform 0.2s;
+        flex-shrink: 0;
+      }
+      .day-card.open .day-chevron {
+        transform: rotate(180deg);
+      }
+      .day-card-body {
+        display: none;
+        border-top: 1px solid var(--border);
+      }
+      .day-card.open .day-card-body {
+        display: block;
+      }
+      .day-notes-section {
+        padding: 12px 16px 10px;
+        border-bottom: 1px solid var(--border);
+        background: var(--overlay-sm);
+      }
+      .day-notes-lbl {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text2);
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        margin-bottom: 6px;
+      }
+      .day-notes-ta {
+        width: 100%;
+        box-sizing: border-box;
+        background: var(--overlay-sm);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 13px;
+        padding: 8px 10px;
+        min-height: 54px;
+        resize: none;
+        transition: border-color 0.15s;
+      }
+      .day-notes-ta:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.22);
+      }
+      .day-ex-group {
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .day-ex-group:last-child {
+        border-bottom: none;
+      }
+      .day-ex-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+        letter-spacing: 0.3px;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .day-pr-badge {
+        font-family: "VT323", monospace;
+        font-size: 13px;
+        background: var(--overlay-md);
+        padding: 0 5px;
+        border-radius: 4px;
+        color: var(--accent);
+      }
+      .day-del-btn {
+        background: none;
+        border: none;
+        color: var(--text2);
+        cursor: pointer;
+        padding: 1px;
+        margin-left: auto;
+        transition: color 0.15s;
+      }
+      .day-del-btn:active {
+        color: var(--danger);
+      }
+      .day-set-row {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 13px;
+        color: var(--text2);
+        padding: 2px 0;
+      }
+      .day-set-n {
+        font-family: "VT323", monospace;
+        font-size: 14px;
+        min-width: 14px;
+      }
+      .day-set-w {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .day-ex-notes {
+        font-size: 12px;
+        color: var(--text2);
+        font-style: italic;
+        margin-top: 5px;
+        padding-left: 6px;
+        border-left: 2px solid var(--border);
+      }
+
+      .bar-total-kg {
+        font-size: 32px;
+      }
+      .bar-total-lbs {
+        font-size: 22px;
+      }
+
+      /* ── Gothic PR highlight ── */
+      .pr-badge {
+        font-family: "VT323", monospace;
+        letter-spacing: 1px;
+      }
+
+      /* ── Section decorators ── */
+      .section-deco {
+        text-align: center;
+        color: rgba(160, 0, 0, 0.25);
+        font-size: 12px;
+        letter-spacing: 4px;
+        margin: 4px 0 12px;
+        font-family: "VT323", monospace;
+      }
+      #replit-badge-container { display: none !important; }
+    </style>
   </head>
-  <body style="height: 100%; margin: 0">
-    <div id="root" style="height: 100%"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body>
+    <div class="app">
+      <div id="syncToast" class="sync-toast"></div>
+      <header class="header">
+        <div class="header-logo">† PR Tracker †</div>
+        <div class="header-actions">
+          <div class="header-sub" id="headerQuote"></div>
+          <button
+            class="sync-btn"
+            id="syncBtn"
+            title="Cloud sync"
+            style="display: none"
+          >
+            ☁️<span class="sync-dot" id="syncDot"></span>
+          </button>
+          <button class="header-gear" onclick="openSettings()" title="Settings">
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+              />
+            </svg>
+          </button>
+        </div>
+      </header>
+      <div class="ticker-wrap">
+        <marquee class="ticker" scrollamount="2">
+          ✦ &nbsp; LOG YOUR LIFTS &nbsp;&nbsp; ✦ &nbsp; SET PERSONAL RECORDS
+          &nbsp;&nbsp; ✦ &nbsp; BREAK YOUR LIMITS &nbsp;&nbsp; ✦ &nbsp; LOAD THE
+          BAR &nbsp;&nbsp; ✦ &nbsp; PR OR DIE &nbsp;&nbsp; ✦ &nbsp; OUTWORK
+          YESTERDAY &nbsp;&nbsp; ✦ &nbsp; IRON THERAPY &nbsp;&nbsp; ✦ &nbsp; NO
+          DAYS OFF &nbsp;&nbsp;
+        </marquee>
+      </div>
+
+      <main class="main">
+        <!-- ══ HOME ══ -->
+        <div class="tab-content active" id="tab-home">
+          <div class="home-hero">
+            <div class="home-greeting" id="homeGreeting">Welcome back</div>
+            <div class="home-title">Ready to lift?</div>
+            <div class="home-date" id="homeDate"></div>
+            <div class="home-quote-box">
+              <div class="home-quote-text" id="homeQuoteText">
+                Add motivational quotes in the Quotes tab to see them here.
+              </div>
+            </div>
+            <button class="home-quote-shuffle" onclick="shuffleHomeQuote()">
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="13"
+                height="13"
+              >
+                <polyline points="16 3 21 3 21 8" />
+                <line x1="4" y1="20" x2="21" y2="3" />
+                <polyline points="21 16 21 21 16 21" />
+                <line x1="15" y1="15" x2="21" y2="21" />
+              </svg>
+              New quote
+            </button>
+          </div>
+
+          <div class="home-stats">
+            <div class="home-stat">
+              <span class="home-stat-val" id="statSessions">0</span
+              ><span class="home-stat-label">Sessions</span>
+            </div>
+            <div class="home-stat">
+              <span class="home-stat-val" id="statExercises">0</span
+              ><span class="home-stat-label">Exercises</span>
+            </div>
+            <div class="home-stat">
+              <span class="home-stat-val" id="statSets">0</span
+              ><span class="home-stat-label">Total Sets</span>
+            </div>
+          </div>
+
+          <button class="home-cta" onclick="switchTab('log')">
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+            >
+              <path d="M12 5v14M5 12l7 7 7-7" />
+            </svg>
+            Log a New Session
+          </button>
+        </div>
+
+        <!-- ══ LOG ══ -->
+        <div class="tab-content" id="tab-log">
+          <!-- Step 0: Category picker -->
+          <div id="log-step-0" class="log-step">
+            <div class="workout-question">What are we<br />hitting today?</div>
+            <div class="category-grid">
+              <button class="cat-tile" onclick="pickCategory('anterior')">
+                <div class="cat-icon">⬆</div>
+                <div class="cat-name">Anterior</div>
+                <div class="cat-sub">Push · Quads</div>
+              </button>
+              <button class="cat-tile" onclick="pickCategory('posterior')">
+                <div class="cat-icon">⬇</div>
+                <div class="cat-name">Posterior</div>
+                <div class="cat-sub">Pull · Hinge</div>
+              </button>
+              <button class="cat-tile" onclick="pickCategory('other')">
+                <div class="cat-icon">≡</div>
+                <div class="cat-name">Other</div>
+                <div class="cat-sub">All exercises</div>
+              </button>
+              <button class="cat-tile" onclick="pickCategory('custom')">
+                <div class="cat-icon">✦</div>
+                <div class="cat-name">Custom</div>
+                <div class="cat-sub">Add new</div>
+              </button>
+            </div>
+            <div class="splits-section" id="splitsContainer"></div>
+            <button class="new-split-btn" onclick="openCreateSplit()">
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              New Split
+            </button>
+          </div>
+
+          <!-- Step 1: Exercise list -->
+          <div id="log-step-1" class="log-step" style="display: none">
+            <button class="back-btn" onclick="logGoBack(0)">
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                viewBox="0 0 24 24"
+                width="15"
+                height="15"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Back
+            </button>
+            <div class="step-title" id="stepCatTitle">Choose Exercise</div>
+            <div class="ex-search-wrap">
+              <svg
+                class="ex-search-icon"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="15"
+                height="15"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="search"
+                class="ex-search"
+                id="exSearch"
+                placeholder="Search exercises…"
+                oninput="filterExercises(this.value)"
+                autocomplete="off"
+              />
+            </div>
+            <div class="exercise-list" id="exerciseList"></div>
+            <div
+              id="customExInput"
+              style="display: none"
+              class="custom-ex-form"
+            >
+              <div class="form-group" style="margin-bottom: 8px">
+                <label for="customExName">New exercise name</label>
+                <input
+                  type="text"
+                  id="customExName"
+                  placeholder="e.g. Bulgarian Split Squat"
+                />
+              </div>
+              <button class="btn btn-primary" onclick="addCustomEx()">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Add &amp; Select
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Exercise detail + log form -->
+          <div id="log-step-2" class="log-step" style="display: none">
+            <button class="back-btn" onclick="logGoBack(1)">
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                viewBox="0 0 24 24"
+                width="15"
+                height="15"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Back
+            </button>
+
+            <div class="exercise-hero">
+              <div
+                class="exercise-silhouette-wrap"
+                onclick="changeSilhouette()"
+              >
+                <img
+                  class="exercise-sil-img"
+                  id="exerciseSilhouetteImg"
+                  src=""
+                  alt=""
+                  style="display: none"
+                />
+                <div
+                  class="exercise-sil-placeholder"
+                  id="exerciseSilPlaceholder"
+                >
+                  ?
+                </div>
+                <div class="sil-change-hint">tap to change</div>
+                <input
+                  type="file"
+                  id="silhouetteFileInput"
+                  accept="image/*"
+                  style="display: none"
+                  onchange="onSilhouetteFile(this)"
+                />
+              </div>
+              <div class="exercise-hero-name" id="exerciseNameLarge"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Log Session</div>
+              <div class="form-group">
+                <div class="sets-header">
+                  <span class="sets-label"
+                    >Sets
+                    <span
+                      style="
+                        color: var(--text2);
+                        font-weight: 500;
+                        text-transform: none;
+                        letter-spacing: 0;
+                      "
+                      >&nbsp;— weight × reps</span
+                    ></span
+                  >
+                  <div class="unit-toggle" style="height: 34px">
+                    <button
+                      class="unit-btn active"
+                      id="btnLbs"
+                      onclick="setUnit('lbs')"
+                    >
+                      lbs
+                    </button>
+                    <button class="unit-btn" id="btnKg" onclick="setUnit('kg')">
+                      kg
+                    </button>
+                  </div>
+                </div>
+                <div class="sets-list" id="setsList"></div>
+                <button class="add-set-btn" onclick="addSetRow()">
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  Add Set
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label for="prDate">Date</label>
+                <input type="date" id="prDate" />
+              </div>
+
+              <div class="form-group">
+                <label for="notes">Notes (optional)</label>
+                <textarea
+                  id="notes"
+                  placeholder="RPE, how it felt, PRs hit…"
+                ></textarea>
+              </div>
+
+              <button class="btn btn-primary" onclick="logSession()">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Save Session
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ HISTORY ══ -->
+        <div class="tab-content" id="tab-history">
+          <div id="historyContent"></div>
+        </div>
+
+        <!-- ══ CHARTS ══ -->
+        <div class="tab-content" id="tab-charts">
+          <div class="form-group">
+            <label for="chartExercise">Select Exercise</label>
+            <select id="chartExercise" onchange="renderChart()">
+              <option value="">— Choose an exercise —</option>
+            </select>
+          </div>
+          <div id="chartContent"></div>
+        </div>
+
+        <!-- ══ GOALS ══ -->
+        <div class="tab-content" id="tab-goals">
+          <div class="card">
+            <div class="card-title">🎯 Set a Goal</div>
+
+            <div class="form-group">
+              <label for="goalExercise">Exercise</label>
+              <select id="goalExercise">
+                <option value="">— Select Exercise —</option>
+                <optgroup label="⬆ Anterior  ·  Push / Quads">
+                  <option>Bench Press</option>
+                  <option>Weighted Dips</option>
+                  <option>Shoulder Press</option>
+                  <option>Lat Raise</option>
+                  <option>Rear Flies</option>
+                  <option>Single Arm Pushdown</option>
+                  <option>Leg Extension</option>
+                  <option>Leg Press</option>
+                </optgroup>
+                <optgroup label="⬇ Posterior  ·  Pull / Hinge">
+                  <option>Deadlifts</option>
+                  <option>T-Bar Row</option>
+                  <option>Lat Pulldowns</option>
+                  <option>Cable Curls</option>
+                  <option>RDL</option>
+                  <option>Lying Hamstring Curl</option>
+                  <option>Hip Thrust</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Target Weight</label>
+              <div class="weight-row">
+                <input
+                  type="number"
+                  id="goalWeight"
+                  placeholder="0"
+                  min="0"
+                  step="0.5"
+                />
+                <div class="unit-toggle">
+                  <button
+                    class="unit-btn active"
+                    id="goalBtnLbs"
+                    onclick="setGoalUnit('lbs')"
+                  >
+                    lbs
+                  </button>
+                  <button
+                    class="unit-btn"
+                    id="goalBtnKg"
+                    onclick="setGoalUnit('kg')"
+                  >
+                    kg
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="goalReps">Target Reps</label>
+              <input
+                type="number"
+                id="goalReps"
+                placeholder="e.g. 1, 3, 5"
+                min="1"
+                step="1"
+              />
+            </div>
+
+            <button class="btn btn-primary" onclick="saveGoal()">
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Save Goal
+            </button>
+          </div>
+
+          <div id="goalsContent"></div>
+        </div>
+
+        <!-- ══ BAR ══ -->
+        <div class="tab-content" id="tab-bar">
+          <div class="card" style="margin-bottom: 10px">
+            <div class="card-title">🏋️ Load the Bar</div>
+            <div class="bar-weight-row">
+              <span class="bar-weight-label">Bar weight</span>
+              <div style="display: flex; gap: 6px; align-items: center">
+                <input
+                  type="number"
+                  id="barWeightInput"
+                  class="bar-weight-input"
+                  value="20"
+                  min="0"
+                  step="0.5"
+                  oninput="barWeightChanged(this.value)"
+                />
+                <span
+                  style="color: var(--text2); font-size: 14px; font-weight: 600"
+                  >kg</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="bar-viz-wrap">
+            <canvas id="barbellCanvas" width="360" height="90"></canvas>
+            <div class="bar-total">
+              <span class="bar-total-kg" id="barTotalKg">20.0 kg</span>
+              <span class="bar-total-sep">|</span>
+              <span class="bar-total-lbs" id="barTotalLbs">44.1 lbs</span>
+            </div>
+            <div class="bar-sub" id="barSub">
+              20 kg Olympic barbell · 0 kg per side
+            </div>
+          </div>
+
+          <div class="plate-tabs">
+            <button
+              class="plate-tab active"
+              id="plateTabKg"
+              onclick="switchPlateTab('kg')"
+            >
+              KG Plates
+            </button>
+            <button
+              class="plate-tab"
+              id="plateTabLbs"
+              onclick="switchPlateTab('lbs')"
+            >
+              LBS Plates
+            </button>
+          </div>
+          <div id="plateGridWrap">
+            <div class="plate-grid" id="plateGrid"></div>
+          </div>
+          <div id="lbsPlateGridWrap" style="display: none">
+            <div class="plate-grid" id="lbsPlateGrid"></div>
+          </div>
+
+          <div class="bar-breakdown" id="barBreakdown">
+            <span style="color: var(--text2)"
+              >Add plates above to see the breakdown.</span
+            >
+          </div>
+
+          <button class="bar-reset" onclick="resetBarPlates()">
+            ⟳ Reset Plates
+          </button>
+          <button
+            class="bar-reset"
+            style="
+              margin-top: 8px;
+              border-color: var(--accent);
+              color: var(--accent);
+            "
+            onclick="openBarTrack()"
+          >
+            ⊕ Track Movement
+          </button>
+        </div>
+
+        <!-- ══ QUOTES ══ -->
+        <div class="tab-content" id="tab-quotes">
+          <div class="quote-hero">
+            <div class="quote-text" id="quoteText">
+              Add your first quote below!
+            </div>
+            <button class="quote-shuffle" onclick="shuffleQuote()">
+              <svg
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="13"
+                height="13"
+              >
+                <polyline points="16 3 21 3 21 8" />
+                <line x1="4" y1="20" x2="21" y2="3" />
+                <polyline points="21 16 21 21 16 21" />
+                <line x1="15" y1="15" x2="21" y2="21" />
+              </svg>
+              Shuffle
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-title">✍️ Add Quote</div>
+            <div class="form-group">
+              <textarea
+                id="newQuote"
+                placeholder="Your motivational quote…"
+                style="min-height: 64px"
+              ></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="addQuote()">
+              Add Quote
+            </button>
+          </div>
+
+          <div class="section-title">Your Quotes</div>
+          <div id="quotesList"></div>
+        </div>
+      </main>
+
+      <!-- BOTTOM NAV -->
+      <nav class="bottom-nav">
+        <button
+          class="nav-btn active"
+          id="nav-home"
+          onclick="switchTab('home')"
+        >
+          <svg
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          Home
+        </button>
+        <button class="nav-btn" id="nav-log" onclick="switchTab('log')">
+          <svg
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 5v14M5 12l7 7 7-7" />
+          </svg>
+          Log
+        </button>
+        <button class="nav-btn" id="nav-history" onclick="switchTab('history')">
+          <svg
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 000 4h6a2 2 0 000-4M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            />
+          </svg>
+          History
+        </button>
+        <button class="nav-btn" id="nav-charts" onclick="switchTab('charts')">
+          <svg
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+          Charts
+        </button>
+        <button class="nav-btn" id="nav-goals" onclick="switchTab('goals')">
+          <svg
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+          Goals
+        </button>
+        <button class="nav-btn" id="nav-quotes" onclick="switchTab('quotes')">
+          <svg
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
+            />
+          </svg>
+          Quotes
+        </button>
+        <button class="nav-btn" id="nav-bar" onclick="switchTab('bar')">
+          <svg
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <rect x="2" y="11" width="4" height="3" rx="1" />
+            <rect x="18" y="11" width="4" height="3" rx="1" />
+            <rect x="6" y="9" width="12" height="7" rx="1" />
+            <rect x="8" y="7" width="8" height="11" rx="1" />
+          </svg>
+          Bar
+        </button>
+      </nav>
+    </div>
+
+    <div
+      class="bar-track-overlay"
+      id="barTrackOverlay"
+      onclick="barTrackOverlayBg(event)"
+    >
+      <div class="bar-track-sheet">
+        <div class="split-sheet-title">
+          <span>Track Movement</span>
+          <button class="split-sheet-close" onclick="closeBarTrack()">
+            Done
+          </button>
+        </div>
+        <div class="bar-track-weight" id="barTrackWeight">— kg / — lbs</div>
+        <div class="split-section-label">Exercise</div>
+        <div class="ex-search-wrap" style="margin-bottom: 10px">
+          <svg
+            class="ex-search-icon"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="15"
+            height="15"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="search"
+            class="ex-search"
+            id="barTrackSearch"
+            placeholder="Search exercise…"
+            oninput="filterBarTrackList(this.value)"
+            autocomplete="off"
+          />
+        </div>
+        <div
+          class="exercise-list"
+          id="barTrackExList"
+          style="max-height: 200px; overflow-y: auto"
+        ></div>
+        <div id="barTrackForm" style="display: none; margin-top: 14px">
+          <div class="split-section-label" id="barTrackExLabel">Reps</div>
+          <div class="form-group" style="margin-bottom: 10px">
+            <input
+              type="number"
+              id="barTrackReps"
+              placeholder="Reps"
+              min="1"
+              style="
+                text-align: center;
+                font-size: 26px;
+                font-family: &quot;VT323&quot;, monospace;
+                letter-spacing: 2px;
+                padding: 10px;
+              "
+            />
+          </div>
+          <button class="split-save-btn" onclick="logBarLoad()">Log Set</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="split-overlay"
+      id="splitOverlay"
+      onclick="splitOverlayBg(event)"
+    >
+      <div class="split-sheet">
+        <div class="split-sheet-title">
+          <span id="splitSheetTitle">New Split</span>
+          <button class="split-sheet-close" onclick="closeSplitOverlay()">
+            Done
+          </button>
+        </div>
+        <input
+          type="text"
+          class="split-name-input"
+          id="splitNameInput"
+          placeholder="e.g. Push Day, Upper Body…"
+        />
+        <div class="split-section-label">Exercises — tap to include</div>
+        <div class="split-search-wrap">
+          <svg
+            class="split-search-icon"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="search"
+            class="split-search"
+            id="splitExSearch"
+            placeholder="Search exercises…"
+            oninput="filterSplitExList(this.value)"
+            autocomplete="off"
+          />
+        </div>
+        <div id="splitExList"></div>
+        <div class="split-add-ex-row">
+          <input
+            type="text"
+            class="split-add-ex-input"
+            id="splitAddExInput"
+            placeholder="Add new exercise…"
+          />
+          <button class="split-add-ex-btn" onclick="addExToSplitList()">
+            + Add
+          </button>
+        </div>
+        <button class="split-save-btn" onclick="saveSplit()">Save Split</button>
+      </div>
+    </div>
+
+    <div
+      class="settings-overlay"
+      id="settingsOverlay"
+      onclick="settingsOverlayBg(event)"
+    >
+      <div class="settings-sheet" id="settingsSheet">
+        <div class="settings-title">
+          Appearance
+          <button class="settings-close-btn" onclick="closeSettings()">
+            Done
+          </button>
+        </div>
+
+        <div class="settings-section-label">Color Palettes</div>
+        <div class="palette-grid" id="themeGrid"></div>
+
+        <div class="settings-section-label">Custom Colors</div>
+        <div class="color-picker-row">
+          <span class="color-picker-label">Background color</span>
+          <input
+            type="color"
+            class="color-picker-input"
+            id="bgColorPicker"
+            value="#000000"
+            oninput="onCustomBg(this.value)"
+          />
+        </div>
+        <div class="color-picker-row">
+          <span class="color-picker-label">Accent color</span>
+          <input
+            type="color"
+            class="color-picker-input"
+            id="accentColorPicker"
+            value="#ffffff"
+            oninput="onCustomAccent(this.value)"
+          />
+        </div>
+
+        <div class="settings-section-label" style="margin-top: 18px">
+          Movements
+        </div>
+        <div id="movementsContainer"></div>
+      </div>
+    </div>
+
+    <div class="tribal-bg" aria-hidden="true">
+      <svg
+        viewBox="0 0 800 480"
+        preserveAspectRatio="xMidYMid meet"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <radialGradient id="mg" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stop-color="#d0d0d0" stop-opacity="0.14" />
+            <stop offset="55%" stop-color="#909090" stop-opacity="0.07" />
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.02" />
+          </radialGradient>
+          <radialGradient id="mgr" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stop-color="#d0d0d0" stop-opacity="0.14" />
+            <stop offset="55%" stop-color="#909090" stop-opacity="0.07" />
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.02" />
+          </radialGradient>
+        </defs>
+        <!-- Left wing -->
+        <g
+          fill="url(#mg)"
+          stroke="white"
+          stroke-width="0.7"
+          stroke-opacity="0.18"
+        >
+          <path
+            d="M400,240 C383,221 353,198 316,186 C279,174 241,182 214,205 C187,228 184,268 211,281 C182,296 171,336 198,351 C225,366 257,332 274,300 C255,338 264,370 293,364 C322,358 337,322 352,292 C339,324 346,355 372,348 C398,341 409,308 409,282 Z"
+          />
+          <path d="M316,186 C303,135 288,92 271,66 C292,112 309,158 316,186Z" />
+          <path
+            d="M353,198 C347,150 349,108 358,84 C354,130 352,175 353,198Z"
+          />
+          <path
+            d="M214,205 C176,173 146,160 124,157 C155,166 188,187 214,205Z"
+          />
+          <path
+            d="M211,281 C169,264 136,268 113,281 C148,270 183,273 211,281Z"
+          />
+          <path
+            d="M198,351 C158,345 126,357 105,375 C137,360 170,351 198,351Z"
+          />
+          <path
+            d="M391,258 C374,245 352,237 339,238 C356,239 376,249 391,258Z"
+          />
+          <path
+            d="M274,300 C263,279 255,259 253,246 C258,263 268,284 274,300Z"
+          />
+          <path
+            d="M340,182 C330,150 315,122 300,108 C318,130 334,160 340,182Z"
+          />
+        </g>
+        <!-- Right wing (mirror) -->
+        <g
+          fill="url(#mgr)"
+          stroke="white"
+          stroke-width="0.7"
+          stroke-opacity="0.18"
+          transform="scale(-1,1) translate(-800,0)"
+        >
+          <path
+            d="M400,240 C383,221 353,198 316,186 C279,174 241,182 214,205 C187,228 184,268 211,281 C182,296 171,336 198,351 C225,366 257,332 274,300 C255,338 264,370 293,364 C322,358 337,322 352,292 C339,324 346,355 372,348 C398,341 409,308 409,282 Z"
+          />
+          <path d="M316,186 C303,135 288,92 271,66 C292,112 309,158 316,186Z" />
+          <path
+            d="M353,198 C347,150 349,108 358,84 C354,130 352,175 353,198Z"
+          />
+          <path
+            d="M214,205 C176,173 146,160 124,157 C155,166 188,187 214,205Z"
+          />
+          <path
+            d="M211,281 C169,264 136,268 113,281 C148,270 183,273 211,281Z"
+          />
+          <path
+            d="M198,351 C158,345 126,357 105,375 C137,360 170,351 198,351Z"
+          />
+          <path
+            d="M391,258 C374,245 352,237 339,238 C356,239 376,249 391,258Z"
+          />
+          <path
+            d="M274,300 C263,279 255,259 253,246 C258,263 268,284 274,300Z"
+          />
+          <path
+            d="M340,182 C330,150 315,122 300,108 C318,130 334,160 340,182Z"
+          />
+        </g>
+        <!-- Centre diamond -->
+        <path
+          d="M400,208 L414,240 L400,272 L386,240 Z"
+          fill="white"
+          opacity="0.055"
+          stroke="white"
+          stroke-width="0.6"
+          stroke-opacity="0.22"
+        />
+        <circle cx="400" cy="195" r="2.5" fill="white" opacity="0.22" />
+        <circle cx="400" cy="285" r="1.8" fill="white" opacity="0.15" />
+      </svg>
+    </div>
+    <div class="starfield" aria-hidden="true"></div>
+    <div class="toast" id="toast"></div>
+
+    <div class="overlay" id="overlay" onclick="closeConfirm(event)">
+      <div class="confirm-sheet">
+        <div class="confirm-title" id="confirmTitle">Delete?</div>
+        <div class="confirm-body" id="confirmBody">This cannot be undone.</div>
+        <div class="confirm-btns">
+          <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+          <button class="btn btn-danger" onclick="confirmAction()">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ─────────────────────────────────────────────
+      //  EXERCISE DATA
+      // ─────────────────────────────────────────────
+      const DEFAULT_ANTERIOR = [
+        "Bench Press",
+        "Incline Bench",
+        "Dumbbell Bench",
+        "Incline Dumbbell Press",
+        "Pushups",
+        "Shoulder Press",
+        "Overhead Press",
+        "Weighted Dips",
+        "Dips",
+        "Lat Raise",
+        "Rear Flies",
+        "Single Arm Pushdown",
+        "Squat",
+        "Front Squat",
+        "Leg Extension",
+        "Leg Press",
+      ];
+      const DEFAULT_POSTERIOR = [
+        "Deadlifts",
+        "Hex Bar Deadlift",
+        "RDL",
+        "Hip Thrust",
+        "Power Cleans",
+        "T-Bar Row",
+        "Bent Over Row",
+        "Lat Pulldowns",
+        "Pullups",
+        "Cable Curls",
+        "Barbell Curl",
+        "Dumbbell Curl",
+        "Lying Hamstring Curl",
+      ];
+      const EXERCISE_GROUPS = {
+        anterior: JSON.parse(localStorage.getItem("pr_anterior")) || [
+          ...DEFAULT_ANTERIOR,
+        ],
+        posterior: JSON.parse(localStorage.getItem("pr_posterior")) || [
+          ...DEFAULT_POSTERIOR,
+        ],
+      };
+
+      const SILHOUETTES = {
+        "Bench Press": "/silhouettes/bench-press.png",
+        Squat: "/silhouettes/squat.png",
+        Deadlifts: "/silhouettes/deadlift.png",
+        "Shoulder Press": "/silhouettes/shoulder-press.png",
+        Pullups: "/silhouettes/pullups.png",
+        "Dumbbell Bench": "/silhouettes/dumbbell-bench.png",
+        "Dumbbell Curl": "/silhouettes/dumbbell-curl.png",
+        Pushups: "/silhouettes/pushups.png",
+        "Leg Press": "/silhouettes/leg-press.png",
+        "Barbell Curl": "/silhouettes/barbell-curl.png",
+        "Incline Dumbbell Press": "/silhouettes/incline-dumbbell-press.png",
+        "Bent Over Row": "/silhouettes/bent-over-row.png",
+        "Incline Bench": "/silhouettes/incline-bench.png",
+        Dips: "/silhouettes/dips.png",
+        "Weighted Dips": "/silhouettes/dips.png",
+        "Overhead Press": "/silhouettes/overhead-press.png",
+        "Lat Pulldowns": "/silhouettes/lat-pulldown.png",
+        "Front Squat": "/silhouettes/front-squat.png",
+        "Hex Bar Deadlift": "/silhouettes/hex-bar-deadlift.png",
+        "Hip Thrust": "/silhouettes/hip-thrust.png",
+        "Lat Raise": "/silhouettes/lat-raise.png",
+        "Leg Extension": "/silhouettes/leg-extension.png",
+        RDL: "/silhouettes/rdl.png",
+        "Power Cleans": "/silhouettes/power-cleans.png",
+      };
+
+      // Returns image URL (built-in path or custom data-URL), or null if none
+      function getSilhouette(name) {
+        return customSilhouettes[name] || SILHOUETTES[name] || null;
+      }
+      function getAllExercises() {
+        return [
+          ...EXERCISE_GROUPS.anterior,
+          ...EXERCISE_GROUPS.posterior,
+          ...customExercises,
+        ];
+      }
+
+      // ─────────────────────────────────────────────
+      //  WORKOUT FLOW
+      // ─────────────────────────────────────────────
+      function showLogStep(n) {
+        for (let i = 0; i <= 2; i++) {
+          const el = document.getElementById("log-step-" + i);
+          if (el) el.style.display = i === n ? "" : "none";
+        }
+      }
+
+      function pickCategory(cat) {
+        showLogStep(1);
+        const searchEl = document.getElementById("exSearch");
+        if (searchEl) searchEl.value = "";
+        const titleEl = document.getElementById("stepCatTitle");
+        const listEl = document.getElementById("exerciseList");
+        const customInput = document.getElementById("customExInput");
+        customInput.style.display = "none";
+        listEl.innerHTML = "";
+
+        if (cat === "custom") {
+          titleEl.textContent = "Custom Exercises";
+          customInput.style.display = "";
+          document.getElementById("customExName").value = "";
+          const snap = [...customExercises];
+          if (snap.length === 0) {
+            listEl.innerHTML =
+              '<div style="color:var(--text2);font-size:13px;padding:8px 4px;">No custom exercises yet. Add one above.</div>';
+            return;
+          }
+          listEl.innerHTML = snap
+            .map(
+              (ex) =>
+                `<div class="ex-tile-row">
+        <button class="ex-tile" style="flex:1;min-width:0;"><span>${ex}</span></button>
+        <button class="ex-tile-del-btn" title="Remove exercise">
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="15" height="15"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`,
+            )
+            .join("");
+          listEl.querySelectorAll(".ex-tile").forEach((btn, i) => {
+            btn.addEventListener("click", () => pickExercise(snap[i]));
+          });
+          listEl.querySelectorAll(".ex-tile-del-btn").forEach((btn, i) => {
+            btn.addEventListener("click", () => deleteCustomEx(snap[i]));
+          });
+        } else {
+          let exercises = [];
+          if (cat === "anterior") {
+            titleEl.textContent = "⬆  Anterior — Push · Quads";
+            exercises = EXERCISE_GROUPS.anterior;
+          } else if (cat === "posterior") {
+            titleEl.textContent = "⬇  Posterior — Pull · Hinge";
+            exercises = EXERCISE_GROUPS.posterior;
+          } else if (cat.startsWith("split:")) {
+            const split = splits.find((s) => s.id === cat.slice(6));
+            if (!split) return;
+            titleEl.textContent = split.name;
+            exercises = split.exercises;
+          } else {
+            titleEl.textContent = "All Exercises";
+            exercises = getAllExercises();
+          }
+          listEl.innerHTML = exercises
+            .map((ex) => `<button class="ex-tile"><span>${ex}</span></button>`)
+            .join("");
+          listEl.querySelectorAll(".ex-tile").forEach((btn, i) => {
+            btn.addEventListener("click", () => pickExercise(exercises[i]));
+          });
+        }
+      }
+
+      function filterExercises(q) {
+        const val = q.toLowerCase().trim();
+        document
+          .querySelectorAll(
+            "#exerciseList .ex-tile, #exerciseList .ex-tile-row",
+          )
+          .forEach((el) => {
+            const span = el.querySelector("span");
+            const name = (
+              span ? span.textContent : el.textContent
+            ).toLowerCase();
+            el.style.display = !val || name.includes(val) ? "" : "none";
+          });
+      }
+
+      // ── SPLITS ──────────────────────────────────────
+      function renderCategoryGrid() {
+        const container = document.getElementById("splitsContainer");
+        if (!container) return;
+        if (splits.length === 0) {
+          container.innerHTML = "";
+          return;
+        }
+        container.innerHTML = splits
+          .map(
+            (s) => `
+    <div class="split-cat-tile">
+      <div class="split-cat-main" data-id="${s.id}">
+        <div class="split-cat-icon-wrap">◈</div>
+        <div class="split-cat-info">
+          <div class="split-cat-name">${s.name}</div>
+          <div class="split-cat-sub">${s.exercises.length} move${s.exercises.length !== 1 ? "s" : ""}</div>
+        </div>
+      </div>
+      <div class="split-cat-btns">
+        <button class="split-cat-btn" data-id="${s.id}" title="Edit">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="split-cat-btn del" data-id="${s.id}" title="Delete">
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="13" height="13"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>`,
+          )
+          .join("");
+        container.querySelectorAll(".split-cat-main").forEach((el) => {
+          el.addEventListener("click", () =>
+            pickCategory("split:" + el.dataset.id),
+          );
+        });
+        container
+          .querySelectorAll(".split-cat-btn:not(.del)")
+          .forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              openEditSplit(btn.dataset.id);
+            });
+          });
+        container.querySelectorAll(".split-cat-btn.del").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (!confirm("Delete this split?")) return;
+            splits = splits.filter((s) => s.id !== btn.dataset.id);
+            localStorage.setItem("pr_splits", JSON.stringify(splits));
+            renderCategoryGrid();
+          });
+        });
+      }
+
+      function openCreateSplit() {
+        editingSplitId = null;
+        document.getElementById("splitSheetTitle").textContent = "New Split";
+        document.getElementById("splitNameInput").value = "";
+        renderSplitExList([]);
+        document.getElementById("splitOverlay").classList.add("open");
+        setTimeout(
+          () => document.getElementById("splitNameInput").focus(),
+          120,
+        );
+      }
+
+      function openEditSplit(splitId) {
+        const split = splits.find((s) => s.id === splitId);
+        if (!split) return;
+        editingSplitId = splitId;
+        document.getElementById("splitSheetTitle").textContent = "Edit Split";
+        document.getElementById("splitNameInput").value = split.name;
+        renderSplitExList(split.exercises);
+        document.getElementById("splitOverlay").classList.add("open");
+      }
+
+      function closeSplitOverlay() {
+        document.getElementById("splitOverlay").classList.remove("open");
+      }
+
+      function splitOverlayBg(e) {
+        if (e.target === document.getElementById("splitOverlay"))
+          closeSplitOverlay();
+      }
+
+      function renderSplitExList(selected) {
+        const all = getAllExercises();
+        const container = document.getElementById("splitExList");
+        container.innerHTML = all
+          .map(
+            (ex) => `
+    <div class="split-ex-item${selected.includes(ex) ? " selected" : ""}" data-ex="${ex.replace(/"/g, "&quot;")}">
+      <div class="split-ex-check">${selected.includes(ex) ? "✓" : ""}</div>
+      <span class="split-ex-name">${ex}</span>
+    </div>`,
+          )
+          .join("");
+        container.querySelectorAll(".split-ex-item").forEach((el) => {
+          el.addEventListener("click", () => {
+            el.classList.toggle("selected");
+            el.querySelector(".split-ex-check").textContent =
+              el.classList.contains("selected") ? "✓" : "";
+          });
+        });
+      }
+
+      function filterSplitExList(q) {
+        const val = q.toLowerCase().trim();
+        document
+          .querySelectorAll("#splitExList .split-ex-item")
+          .forEach((el) => {
+            const name = el
+              .querySelector(".split-ex-name")
+              .textContent.toLowerCase();
+            el.style.display = !val || name.includes(val) ? "" : "none";
+          });
+      }
+
+      function addExToSplitList() {
+        const input = document.getElementById("splitAddExInput");
+        const name = input.value.trim();
+        if (!name) return;
+        const all = getAllExercises();
+        if (!all.includes(name)) {
+          customExercises.push(name);
+          localStorage.setItem(
+            "pr_custom_exercises",
+            JSON.stringify(customExercises),
+          );
+          updateExerciseDropdowns();
+        }
+        const already = Array.from(
+          document.querySelectorAll("#splitExList .split-ex-item"),
+        ).map((el) => el.dataset.ex);
+        const selected = Array.from(
+          document.querySelectorAll("#splitExList .split-ex-item.selected"),
+        ).map((el) => el.dataset.ex);
+        if (!already.includes(name)) {
+          selected.push(name);
+          renderSplitExList(selected);
+        } else {
+          // auto-select it
+          document
+            .querySelectorAll("#splitExList .split-ex-item")
+            .forEach((el) => {
+              if (el.dataset.ex === name) {
+                el.classList.add("selected");
+                el.querySelector(".split-ex-check").textContent = "✓";
+              }
+            });
+        }
+        input.value = "";
+        document.getElementById("splitExSearch").value = "";
+        filterSplitExList("");
+        showToast(`"${name}" added!`);
+      }
+
+      function saveSplit() {
+        const name = document.getElementById("splitNameInput").value.trim();
+        if (!name) {
+          showToast("Give your split a name!");
+          return;
+        }
+        const exercises = Array.from(
+          document.querySelectorAll("#splitExList .split-ex-item.selected"),
+        ).map((el) => el.dataset.ex);
+        if (exercises.length === 0) {
+          showToast("Select at least one exercise!");
+          return;
+        }
+        if (editingSplitId) {
+          const idx = splits.findIndex((s) => s.id === editingSplitId);
+          if (idx >= 0) splits[idx] = { id: editingSplitId, name, exercises };
+        } else {
+          splits.push({ id: "split-" + Date.now(), name, exercises });
+        }
+        localStorage.setItem("pr_splits", JSON.stringify(splits));
+        closeSplitOverlay();
+        renderCategoryGrid();
+        showToast(editingSplitId ? "Split updated!" : "Split created!");
+      }
+
+      function deleteCustomEx(name) {
+        if (!confirm(`Remove "${name}" from custom exercises?`)) return;
+        customExercises = customExercises.filter((e) => e !== name);
+        localStorage.setItem(
+          "pr_custom_exercises",
+          JSON.stringify(customExercises),
+        );
+        updateExerciseDropdowns();
+        pickCategory("custom");
+      }
+
+      function changeSilhouette() {
+        document.getElementById("silhouetteFileInput").click();
+      }
+
+      function onSilhouetteFile(input) {
+        const file = input.files[0];
+        if (!file || !selectedExerciseForLog) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target.result;
+          customSilhouettes[selectedExerciseForLog] = dataUrl;
+          localStorage.setItem(
+            "pr_custom_silhouettes",
+            JSON.stringify(customSilhouettes),
+          );
+          const imgEl = document.getElementById("exerciseSilhouetteImg");
+          const holdEl = document.getElementById("exerciseSilPlaceholder");
+          imgEl.src = dataUrl;
+          imgEl.style.display = "";
+          holdEl.style.display = "none";
+          showToast("Image updated");
+        };
+        reader.readAsDataURL(file);
+        input.value = "";
+      }
+
+      function pickExercise(name) {
+        selectedExerciseForLog = name;
+        document.getElementById("exerciseNameLarge").textContent = name;
+        // Show image or ? placeholder
+        const imgEl = document.getElementById("exerciseSilhouetteImg");
+        const holdEl = document.getElementById("exerciseSilPlaceholder");
+        const src = getSilhouette(name);
+        if (src) {
+          imgEl.src = src;
+          imgEl.style.display = "";
+          holdEl.style.display = "none";
+        } else {
+          imgEl.src = "";
+          imgEl.style.display = "none";
+          holdEl.style.display = "";
+        }
+        document.getElementById("setsList").innerHTML = "";
+        setRowCount = 0;
+        addSetRow();
+        document.getElementById("prDate").value = todayStr();
+        showLogStep(2);
+      }
+
+      function logGoBack(toStep) {
+        showLogStep(toStep);
+      }
+
+      function addCustomEx() {
+        const name = document.getElementById("customExName").value.trim();
+        if (!name) {
+          showToast("Enter an exercise name", "error");
+          return;
+        }
+        if (!customExercises.includes(name)) {
+          customExercises.push(name);
+          localStorage.setItem(
+            "pr_custom_exercises",
+            JSON.stringify(customExercises),
+          );
+          updateExerciseDropdowns();
+        }
+        pickExercise(name);
+      }
+
+      function updateExerciseDropdowns() {
+        const sel = document.getElementById("goalExercise");
+        if (!sel) return;
+        const existing = sel.querySelector("optgroup[data-custom]");
+        if (existing) existing.remove();
+        if (customExercises.length > 0) {
+          const grp = document.createElement("optgroup");
+          grp.label = "Custom";
+          grp.dataset.custom = "1";
+          customExercises.forEach((ex) => {
+            const opt = document.createElement("option");
+            opt.value = opt.textContent = ex;
+            grp.appendChild(opt);
+          });
+          sel.appendChild(grp);
+        }
+      }
+
+      // ─────────────────────────────────────────────
+      //  DATA MODEL
+      //  Session: { id, exercise, date, unit, notes, sets:[{weight,reps}] }
+      //  Legacy:  { id, exercise, date, unit, weight, reps, sets(number), notes }
+      // ─────────────────────────────────────────────
+      function migrate(e) {
+        if (Array.isArray(e.sets)) return e;
+        return {
+          id: e.id,
+          exercise: e.exercise,
+          date: e.date,
+          unit: e.unit || "lbs",
+          notes: e.notes || "",
+          sets: [{ weight: e.weight || 0, reps: e.reps || 1 }],
+        };
+      }
+
+      const APPS_SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbyFTLsTA01HjMkHQdPLYrqDWQDS5eiw0I5VJSd7X5lpXlxdFAISBQzGG9oF2LfzBV1FGQ/exec";
+
+      let entries = JSON.parse(localStorage.getItem("pr_entries") || "[]").map(
+        migrate,
+      );
+      let goals = JSON.parse(localStorage.getItem("pr_goals") || "[]");
+      let quotes = JSON.parse(localStorage.getItem("pr_quotes") || "[]");
+      let unit = localStorage.getItem("pr_unit") || "lbs";
+      let goalUnit = localStorage.getItem("pr_goal_unit") || "lbs";
+      let homeQuoteIdx = 0;
+      let quotesIdx = 0;
+      let pendingConfirmCb = null;
+      let chartInstance = null;
+      let setRowCount = 0;
+      let customExercises = JSON.parse(
+        localStorage.getItem("pr_custom_exercises") || "[]",
+      );
+      let customSilhouettes = JSON.parse(
+        localStorage.getItem("pr_custom_silhouettes") || "{}",
+      );
+      let splits = JSON.parse(localStorage.getItem("pr_splits") || "[]");
+      let editingSplitId = null;
+      let lbsBarPlateCounts = {};
+      let barWeightKg = parseFloat(
+        localStorage.getItem("pr_bar_weight") || "20",
+      );
+      let selectedExerciseForLog = "";
+      let dayNotes = JSON.parse(localStorage.getItem("pr_day_notes") || "{}");
+      let themeIdx = parseInt(localStorage.getItem("pr_theme_idx") || "0");
+      let customBgColor = localStorage.getItem("pr_custom_bg") || "";
+      let customAccentColor = localStorage.getItem("pr_custom_accent") || "";
+
+      // ─────────────────────────────────────────────
+      //  COLOUR THEMES
+      // ─────────────────────────────────────────────
+      const PALETTES = [
+        // ── Dark ──
+        {
+          name: "Void",
+          bg: "#000000",
+          bg2: "#0d0d0d",
+          bg3: "#1a1a1a",
+          text: "#e8e8e8",
+          text2: "rgba(255,255,255,0.38)",
+          accent: "#ffffff",
+          border: "#1a1a1a",
+        },
+        {
+          name: "Blood",
+          bg: "#0a0000",
+          bg2: "#140000",
+          bg3: "#200000",
+          text: "#fff0f0",
+          text2: "rgba(255,180,180,0.42)",
+          accent: "#e05050",
+          border: "#280000",
+        },
+        {
+          name: "Arctic",
+          bg: "#050b14",
+          bg2: "#0b1524",
+          bg3: "#101e30",
+          text: "#dff0ff",
+          text2: "rgba(160,210,255,0.42)",
+          accent: "#7ac8e8",
+          border: "#0f1e34",
+        },
+        {
+          name: "Forest",
+          bg: "#030d03",
+          bg2: "#09140a",
+          bg3: "#0f1e10",
+          text: "#efffee",
+          text2: "rgba(160,240,160,0.42)",
+          accent: "#6aad6a",
+          border: "#102010",
+        },
+        {
+          name: "Violet",
+          bg: "#09060f",
+          bg2: "#110c1e",
+          bg3: "#18102a",
+          text: "#f0e8ff",
+          text2: "rgba(200,180,255,0.42)",
+          accent: "#b088e8",
+          border: "#1e1035",
+        },
+        {
+          name: "Gold",
+          bg: "#0d0900",
+          bg2: "#181200",
+          bg3: "#221a00",
+          text: "#fff8e0",
+          text2: "rgba(255,220,130,0.42)",
+          accent: "#d4a017",
+          border: "#281e00",
+        },
+        {
+          name: "Rose",
+          bg: "#12000a",
+          bg2: "#1e0012",
+          bg3: "#280018",
+          text: "#fff0f6",
+          text2: "rgba(255,180,210,0.42)",
+          accent: "#f48fb1",
+          border: "#2c0020",
+        },
+        {
+          name: "Slate",
+          bg: "#0a0c10",
+          bg2: "#12151c",
+          bg3: "#1c2030",
+          text: "#e8eaf0",
+          text2: "rgba(200,210,230,0.42)",
+          accent: "#90a4ae",
+          border: "#1c2030",
+        },
+        // ── Light ──
+        {
+          name: "Pearl",
+          bg: "#f2f4f8",
+          bg2: "#ffffff",
+          bg3: "#e8eaf0",
+          text: "#1a1a2e",
+          text2: "rgba(26,26,46,0.45)",
+          accent: "#4361ee",
+          border: "rgba(0,0,0,0.08)",
+          light: true,
+        },
+        {
+          name: "Sky",
+          bg: "#e6f3ff",
+          bg2: "#ffffff",
+          bg3: "#d4e8ff",
+          text: "#0d2040",
+          text2: "rgba(13,32,64,0.45)",
+          accent: "#0077b6",
+          border: "rgba(0,80,160,0.1)",
+          light: true,
+        },
+        {
+          name: "Latte",
+          bg: "#f5ede0",
+          bg2: "#fffaf4",
+          bg3: "#eedcc8",
+          text: "#3d2b10",
+          text2: "rgba(80,55,20,0.45)",
+          accent: "#a0522d",
+          border: "rgba(100,60,20,0.1)",
+          light: true,
+        },
+        {
+          name: "Chalk",
+          bg: "#f0f0f5",
+          bg2: "#ffffff",
+          bg3: "#e6e6f0",
+          text: "#1a1025",
+          text2: "rgba(30,20,50,0.45)",
+          accent: "#7c3aed",
+          border: "rgba(80,30,180,0.1)",
+          light: true,
+        },
+      ];
+
+      function hexToRgb(h) {
+        h = h.trim();
+        if (!h.startsWith("#")) return [128, 128, 128];
+        const n = parseInt(h.replace("#", ""), 16);
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      }
+
+      function applyFullPalette(p) {
+        const s = document.documentElement.style;
+        s.setProperty("--bg", p.bg);
+        s.setProperty("--bg2", p.bg2);
+        s.setProperty("--bg3", p.bg3);
+        s.setProperty("--text", p.text);
+        s.setProperty("--text2", p.text2);
+        s.setProperty("--accent", p.accent);
+        s.setProperty("--border", p.border);
+        const [ar, ag, ab] = hexToRgb(
+          p.accent.startsWith("#") ? p.accent : "#ffffff",
+        );
+        s.setProperty(
+          "--accent2",
+          `rgb(${Math.floor(ar * 0.8)},${Math.floor(ag * 0.8)},${Math.floor(ab * 0.8)})`,
+        );
+        if (p.light) {
+          s.setProperty("--glass-bg", p.bg);
+          s.setProperty("--overlay-sm", "rgba(0,0,0,0.04)");
+          s.setProperty("--overlay-md", "rgba(0,0,0,0.08)");
+          s.setProperty("--overlay-lg", "rgba(0,0,0,0.14)");
+        } else {
+          s.setProperty("--glass-bg", "rgba(0,0,0,0.96)");
+          s.setProperty("--overlay-sm", "rgba(255,255,255,0.04)");
+          s.setProperty("--overlay-md", "rgba(255,255,255,0.07)");
+          s.setProperty("--overlay-lg", "rgba(255,255,255,0.12)");
+        }
+      }
+
+      function applyTheme(bg, accent) {
+        const base =
+          themeIdx >= 0 && themeIdx < PALETTES.length
+            ? PALETTES[themeIdx]
+            : PALETTES[0];
+        const [r, g, b] = hexToRgb(bg);
+        applyFullPalette({
+          ...base,
+          bg,
+          accent,
+          bg2: `rgb(${Math.min(r + 10, 255)},${Math.min(g + 10, 255)},${Math.min(b + 10, 255)})`,
+          bg3: `rgb(${Math.min(r + 20, 255)},${Math.min(g + 20, 255)},${Math.min(b + 20, 255)})`,
+        });
+      }
+
+      function initTheme() {
+        if (customBgColor || customAccentColor) {
+          applyTheme(
+            customBgColor || PALETTES[0].bg,
+            customAccentColor || PALETTES[0].accent,
+          );
+          document.getElementById("bgColorPicker").value =
+            customBgColor || PALETTES[0].bg;
+          document.getElementById("accentColorPicker").value =
+            customAccentColor || PALETTES[0].accent;
+        } else if (themeIdx >= 0 && themeIdx < PALETTES.length) {
+          applyFullPalette(PALETTES[themeIdx]);
+        } else {
+          applyFullPalette(PALETTES[0]);
+        }
+      }
+
+      function openSettings() {
+        document.getElementById("settingsOverlay").classList.add("open");
+        renderThemeGrid();
+        renderMovementLists();
+      }
+      function closeSettings() {
+        document.getElementById("settingsOverlay").classList.remove("open");
+      }
+      function settingsOverlayBg(e) {
+        if (e.target === document.getElementById("settingsOverlay"))
+          closeSettings();
+      }
+
+      function renderThemeGrid() {
+        const isCustom = customBgColor || customAccentColor;
+        document.getElementById("themeGrid").innerHTML = PALETTES.map(
+          (p, i) => `
+    <button class="palette-swatch${!isCustom && i === themeIdx ? " active" : ""}"
+            style="background:${p.bg};" onclick="applyPreset(${i})">
+      <div class="palette-swatch-accent" style="background:${p.accent};"></div>
+      <div class="palette-swatch-name" style="color:${p.accent};">${p.name}</div>
+    </button>`,
+        ).join("");
+      }
+
+      function applyPreset(i) {
+        themeIdx = i;
+        customBgColor = "";
+        customAccentColor = "";
+        localStorage.setItem("pr_theme_idx", i);
+        localStorage.removeItem("pr_custom_bg");
+        localStorage.removeItem("pr_custom_accent");
+        applyFullPalette(PALETTES[i]);
+        document.getElementById("bgColorPicker").value = PALETTES[i].bg;
+        document.getElementById("accentColorPicker").value = PALETTES[i].accent;
+        renderThemeGrid();
+      }
+
+      function onCustomBg(v) {
+        customBgColor = v;
+        themeIdx = -1;
+        localStorage.setItem("pr_custom_bg", v);
+        localStorage.setItem("pr_theme_idx", "-1");
+        applyTheme(v, customAccentColor || PALETTES[0].accent);
+        renderThemeGrid();
+      }
+      function onCustomAccent(v) {
+        customAccentColor = v;
+        themeIdx = -1;
+        localStorage.setItem("pr_custom_accent", v);
+        localStorage.setItem("pr_theme_idx", "-1");
+        applyTheme(customBgColor || PALETTES[0].bg, v);
+        renderThemeGrid();
+      }
+
+      // ── MOVEMENT MANAGEMENT ──────────────────────────────
+      function renderMovementLists() {
+        const container = document.getElementById("movementsContainer");
+        if (!container) return;
+        container.innerHTML = ["anterior", "posterior"]
+          .map((group) => {
+            const label = group === "anterior" ? "⬆ Anterior" : "⬇ Posterior";
+            return `
+      <div class="movements-group">
+        <div class="movements-group-title">
+          <span>${label}</span>
+          <button class="movements-reset-btn" onclick="resetGroup('${group}')">Reset</button>
+        </div>
+        <div class="movements-list">
+          ${EXERCISE_GROUPS[group]
+            .map(
+              (ex) => `
+            <div class="movement-item">
+              <span class="movement-item-name">${ex}</span>
+              <button class="movement-del-btn" onclick="removeFromGroup('${group}','${ex.replace(/'/g, "\\'")}')">×</button>
+            </div>`,
+            )
+            .join("")}
+        </div>
+        <div class="movements-add-row">
+          <input type="text" class="movements-add-input" id="mvAdd-${group}" placeholder="Add movement…" onkeydown="if(event.key==='Enter')addToGroup('${group}')"/>
+          <button class="movements-add-btn" onclick="addToGroup('${group}')">+ Add</button>
+        </div>
+      </div>`;
+          })
+          .join("");
+      }
+
+      function addToGroup(group) {
+        const input = document.getElementById("mvAdd-" + group);
+        const name = input.value.trim();
+        if (!name) return;
+        if (EXERCISE_GROUPS[group].includes(name)) {
+          showToast("Already in this group!");
+          return;
+        }
+        EXERCISE_GROUPS[group].push(name);
+        localStorage.setItem(
+          "pr_" + group,
+          JSON.stringify(EXERCISE_GROUPS[group]),
+        );
+        input.value = "";
+        renderMovementLists();
+        showToast(
+          "Added to " + (group === "anterior" ? "Anterior" : "Posterior") + "!",
+        );
+      }
+
+      function removeFromGroup(group, name) {
+        EXERCISE_GROUPS[group] = EXERCISE_GROUPS[group].filter(
+          (e) => e !== name,
+        );
+        localStorage.setItem(
+          "pr_" + group,
+          JSON.stringify(EXERCISE_GROUPS[group]),
+        );
+        renderMovementLists();
+      }
+
+      function resetGroup(group) {
+        if (!confirm("Reset " + group + " to defaults?")) return;
+        EXERCISE_GROUPS[group] = [
+          ...(group === "anterior" ? DEFAULT_ANTERIOR : DEFAULT_POSTERIOR),
+        ];
+        localStorage.removeItem("pr_" + group);
+        renderMovementLists();
+        showToast("Reset to defaults!");
+      }
+
+      // ─────────────────────────────────────────────
+      //  CLOUD SYNC
+      // ─────────────────────────────────────────────
+      let _syncToastTimer = null;
+
+      function _cloudEnabled() {
+        return (
+          APPS_SCRIPT_URL &&
+          APPS_SCRIPT_URL !==
+            "https://script.google.com/macros/s/AKfycbyFTLsTA01HjMkHQdPLYrqDWQDS5eiw0I5VJSd7X5lpXlxdFAISBQzGG9oF2LfzBV1FGQ/exec"
+        );
+      }
+
+      function setSyncStatus(state) {
+        const dot = document.getElementById("syncDot");
+        const btn = document.getElementById("syncBtn");
+        if (!dot || !btn) return;
+        btn.style.display = _cloudEnabled() ? "" : "none";
+        dot.className = "sync-dot" + (state ? " " + state : "");
+      }
+
+      function showSyncToast(msg, duration) {
+        const el = document.getElementById("syncToast");
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add("visible");
+        if (_syncToastTimer) clearTimeout(_syncToastTimer);
+        if (duration > 0)
+          _syncToastTimer = setTimeout(
+            () => el.classList.remove("visible"),
+            duration,
+          );
+      }
+
+      function syncToCloud() {
+        if (!_cloudEnabled()) return;
+        setSyncStatus("busy");
+        fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ entries, goals, quotes }),
+        })
+          .then(() => {
+            setSyncStatus("ok");
+            showSyncToast("☁️ Saved", 2000);
+          })
+          .catch(() => {
+            setSyncStatus("error");
+          });
+      }
+
+      async function fetchFromCloud() {
+        if (!_cloudEnabled()) return;
+        setSyncStatus("busy");
+        try {
+          const res = await fetch(APPS_SCRIPT_URL + "?action=read");
+          if (!res.ok) throw new Error("bad response");
+          const data = await res.json();
+          if (Array.isArray(data.entries)) {
+            entries = data.entries.map(migrate);
+            localStorage.setItem("pr_entries", JSON.stringify(entries));
+          }
+          if (Array.isArray(data.goals)) {
+            goals = data.goals;
+            localStorage.setItem("pr_goals", JSON.stringify(goals));
+          }
+          if (Array.isArray(data.quotes)) {
+            quotes = data.quotes;
+            localStorage.setItem("pr_quotes", JSON.stringify(quotes));
+          }
+          setSyncStatus("ok");
+          showSyncToast("☁️ Synced", 2500);
+          renderCurrentTab();
+        } catch {
+          setSyncStatus("error");
+        }
+      }
+
+      function renderCurrentTab() {
+        const active = document.querySelector(".tab-content.active");
+        if (!active) return;
+        const tab = active.id.replace("tab-", "");
+        if (tab === "home") renderHome();
+        if (tab === "log") showLogStep(0);
+        if (tab === "history") renderHistory();
+        if (tab === "charts") {
+          populateChartSelect();
+          renderChart();
+        }
+        if (tab === "goals") renderGoals();
+        if (tab === "quotes") renderQuotes();
+      }
+
+      function save() {
+        localStorage.setItem("pr_entries", JSON.stringify(entries));
+        localStorage.setItem("pr_goals", JSON.stringify(goals));
+        localStorage.setItem("pr_quotes", JSON.stringify(quotes));
+        if (typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes('YOUR_URL')) {
+          showToast('☁️ Syncing...', 'info');
+          fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ entries, goals, quotes })
+          })
+          .then(r => r.text())
+          .then(() => showToast('☁️ Synced!'))
+          .catch(() => showToast('Saved locally only', 'error'));
+        }
+      }
+
+      // ─────────────────────────────────────────────
+      //  INIT
+      // ─────────────────────────────────────────────
+      function init() {
+        initTheme();
+        setUnit(unit, true);
+        setGoalUnit(goalUnit, true);
+        showLogStep(0);
+        renderHome();
+        updateHeaderQuote();
+        initBar();
+        updateExerciseDropdowns();
+        renderCategoryGrid();
+        setSyncStatus("");
+        fetchFromCloud();
+      }
+
+      function todayStr() {
+        return new Date().toISOString().split("T")[0];
+      }
+
+      // ─────────────────────────────────────────────
+      //  TABS
+      // ─────────────────────────────────────────────
+      function switchTab(tab) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => el.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-btn")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById("tab-" + tab).classList.add("active");
+        document.getElementById("nav-" + tab).classList.add("active");
+        if (tab === "home") renderHome();
+        if (tab === "log") showLogStep(0);
+        if (tab === "history") renderHistory();
+        if (tab === "charts") {
+          populateChartSelect();
+          renderChart();
+        }
+        if (tab === "goals") renderGoals();
+        if (tab === "quotes") renderQuotes();
+      }
+
+      // ─────────────────────────────────────────────
+      //  HOME
+      // ─────────────────────────────────────────────
+      function renderHome() {
+        const h = new Date().getHours();
+        document.getElementById("homeGreeting").textContent =
+          h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+        document.getElementById("homeDate").textContent =
+          formatDate(todayStr());
+
+        const totalSets = entries.reduce((n, e) => n + e.sets.length, 0);
+        document.getElementById("statSessions").textContent = entries.length;
+        document.getElementById("statExercises").textContent = new Set(
+          entries.map((e) => e.exercise),
+        ).size;
+        document.getElementById("statSets").textContent = totalSets;
+
+        updateHomeQuote();
+      }
+
+      function updateHomeQuote() {
+        const el = document.getElementById("homeQuoteText");
+        if (quotes.length > 0) {
+          if (homeQuoteIdx >= quotes.length) homeQuoteIdx = 0;
+          el.textContent = "\u201c" + quotes[homeQuoteIdx].text + "\u201d";
+        } else {
+          el.textContent =
+            "Add motivational quotes in the Quotes tab to see them here.";
+        }
+      }
+
+      function shuffleHomeQuote() {
+        if (quotes.length < 2) return;
+        let n;
+        do {
+          n = Math.floor(Math.random() * quotes.length);
+        } while (n === homeQuoteIdx);
+        homeQuoteIdx = n;
+        updateHomeQuote();
+      }
+
+      function updateHeaderQuote() {
+        const el = document.getElementById("headerQuote");
+        el.textContent =
+          quotes.length > 0
+            ? "\u201c" +
+              quotes[Math.floor(Math.random() * quotes.length)].text +
+              "\u201d"
+            : "";
+      }
+
+      // ─────────────────────────────────────────────
+      //  UNIT TOGGLES
+      // ─────────────────────────────────────────────
+      function setUnit(u, silent) {
+        unit = u;
+        if (!silent) localStorage.setItem("pr_unit", u);
+        document
+          .getElementById("btnLbs")
+          .classList.toggle("active", u === "lbs");
+        document.getElementById("btnKg").classList.toggle("active", u === "kg");
+      }
+
+      function setGoalUnit(u, silent) {
+        goalUnit = u;
+        if (!silent) localStorage.setItem("pr_goal_unit", u);
+        document
+          .getElementById("goalBtnLbs")
+          .classList.toggle("active", u === "lbs");
+        document
+          .getElementById("goalBtnKg")
+          .classList.toggle("active", u === "kg");
+      }
+
+      // ─────────────────────────────────────────────
+      //  DYNAMIC SET ROWS
+      // ─────────────────────────────────────────────
+      function addSetRow(weightVal, repsVal) {
+        setRowCount++;
+        const container = document.getElementById("setsList");
+        const num = container.children.length + 1;
+        const div = document.createElement("div");
+        div.className = "set-row";
+        div.innerHTML = `
+    <span class="set-num">${num}</span>
+    <input type="number" class="set-weight" placeholder="Weight" min="0" step="0.5" value="${weightVal != null ? weightVal : ""}"/>
+    <input type="number" class="set-reps"   placeholder="Reps"   min="1" step="1"   value="${repsVal != null ? repsVal : ""}"/>
+    <button class="set-remove" onclick="removeSetRow(this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+        container.appendChild(div);
+      }
+
+      function removeSetRow(btn) {
+        const list = document.getElementById("setsList");
+        if (list.children.length <= 1) return;
+        btn.closest(".set-row").remove();
+        reNumberSets();
+      }
+
+      function reNumberSets() {
+        document.querySelectorAll("#setsList .set-row").forEach((row, i) => {
+          row.querySelector(".set-num").textContent = i + 1;
+        });
+      }
+
+      function getSetRows() {
+        return [...document.querySelectorAll("#setsList .set-row")].map(
+          (row) => ({
+            weight: parseFloat(row.querySelector(".set-weight").value),
+            reps: parseInt(row.querySelector(".set-reps").value),
+          }),
+        );
+      }
+
+      // ─────────────────────────────────────────────
+      //  LOG SESSION
+      // ─────────────────────────────────────────────
+      function logSession() {
+        const exercise = selectedExerciseForLog;
+        const date = document.getElementById("prDate").value;
+        const notes = document.getElementById("notes").value.trim();
+
+        if (!exercise) {
+          showToast("Select an exercise", "error");
+          return;
+        }
+        if (!date) {
+          showToast("Select a date", "error");
+          return;
+        }
+
+        const validSets = getSetRows().filter(
+          (s) =>
+            !isNaN(s.weight) && !isNaN(s.reps) && s.weight >= 0 && s.reps >= 1,
+        );
+        if (validSets.length === 0) {
+          showToast("Add at least one complete set", "error");
+          return;
+        }
+
+        entries.push({
+          id: Date.now(),
+          exercise,
+          date,
+          unit,
+          notes,
+          sets: validSets,
+        });
+        save();
+
+        document.getElementById("notes").value = "";
+        document.getElementById("setsList").innerHTML = "";
+        setRowCount = 0;
+        selectedExerciseForLog = "";
+        showLogStep(0);
+        showToast("Session saved!");
+        updateHeaderQuote();
+        renderHome();
+      }
+
+      // ─────────────────────────────────────────────
+      //  HISTORY
+      // ─────────────────────────────────────────────
+      function saveDayNote(date, text) {
+        dayNotes[date] = text;
+        localStorage.setItem("pr_day_notes", JSON.stringify(dayNotes));
+      }
+
+      function clearDay(date) {
+        if (!confirm(`Delete all logged sets for ${formatDate(date)}?`)) return;
+        const card = document.getElementById("day-" + date);
+        const doRemove = () => {
+          entries = entries.filter((e) => e.date !== date);
+          saveEntries();
+          delete dayNotes[date];
+          localStorage.setItem("pr_day_notes", JSON.stringify(dayNotes));
+          renderHistory();
+          renderHome();
+          showToast("Day cleared");
+        };
+        if (card) {
+          card.style.transition = "opacity 0.18s, transform 0.18s";
+          card.style.opacity = "0";
+          card.style.transform = "translateX(-12px)";
+          setTimeout(doRemove, 200);
+        } else {
+          doRemove();
+        }
+      }
+
+      function toggleDayCard(headerEl) {
+        headerEl.closest(".day-card").classList.toggle("open");
+      }
+
+      function getDayCategory(exNames) {
+        const ant = exNames.filter((n) =>
+          EXERCISE_GROUPS.anterior.includes(n),
+        ).length;
+        const pos = exNames.filter((n) =>
+          EXERCISE_GROUPS.posterior.includes(n),
+        ).length;
+        if (ant > 0 && pos === 0) return "Anterior";
+        if (pos > 0 && ant === 0) return "Posterior";
+        if (ant > 0 && pos > 0) return "Mixed";
+        return "Other";
+      }
+
+      function renderHistory() {
+        const container = document.getElementById("historyContent");
+
+        if (entries.length === 0) {
+          container.innerHTML = `<div class="empty-state"><span class="empty-icon">📋</span><p>No sessions yet.<br><strong>Go to Log to start!</strong></p></div>`;
+          return;
+        }
+
+        // Group entries by date
+        const byDate = {};
+        entries.forEach((e) => {
+          (byDate[e.date] = byDate[e.date] || []).push(e);
+        });
+        const dates = Object.keys(byDate).sort(
+          (a, b) => new Date(b) - new Date(a),
+        );
+
+        container.innerHTML = dates
+          .map((date) => {
+            const dayEntries = byDate[date];
+            const cat = getDayCategory(dayEntries.map((e) => e.exercise));
+            const note = dayNotes[date] || "";
+            const totalSets = dayEntries.reduce((n, e) => n + e.sets.length, 0);
+
+            // Group by exercise within the day
+            const byEx = {};
+            dayEntries.forEach((e) => {
+              (byEx[e.exercise] = byEx[e.exercise] || []).push(e);
+            });
+
+            const exHtml = Object.keys(byEx)
+              .map((exName) => {
+                // All-time best kg for this exercise (for PR badge)
+                const allTimeBestKg = getBestKgForExercise(
+                  entries.filter((x) => x.exercise === exName),
+                );
+
+                return byEx[exName]
+                  .map((e) => {
+                    const prSet = getPrSet(e.sets);
+                    const isAllTime =
+                      Math.abs(toKg(prSet.weight, e.unit) - allTimeBestKg) <
+                      0.01;
+                    const setsHtml = e.sets
+                      .map(
+                        (s, i) => `
+          <div class="day-set-row">
+            <span class="day-set-n">${i + 1}</span>
+            <span class="day-set-w">${s.weight} ${e.unit}</span>
+            <span style="color:var(--text2)">×</span>
+            <span>${s.reps} rep${s.reps !== 1 ? "s" : ""}</span>
+            ${s === prSet ? '<span style="font-size:10px;color:var(--accent);margin-left:2px;">↑ top</span>' : ""}
+          </div>`,
+                      )
+                      .join("");
+
+                    return `
+          <div class="day-ex-group">
+            <div class="day-ex-name">
+              ${exName}
+              ${isAllTime ? '<span class="day-pr-badge">PR</span>' : ""}
+              <button class="day-del-btn" onclick="deleteEntry(${e.id})" title="Delete">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+              </button>
+            </div>
+            ${setsHtml}
+            ${e.notes ? `<div class="day-ex-notes">${e.notes}</div>` : ""}
+            ${renderGoalInline(exName)}
+          </div>`;
+                  })
+                  .join("");
+              })
+              .join("");
+
+            return `
+      <div class="day-card" id="day-${date}">
+        <div class="day-card-header" onclick="toggleDayCard(this)">
+          <div class="day-card-date">${formatDate(date)}</div>
+          <span class="day-cat-badge">${cat}</span>
+          <span class="day-set-count">${totalSets} set${totalSets !== 1 ? "s" : ""}</span>
+          <button class="day-clear-btn" onclick="event.stopPropagation();clearDay('${date}')" title="Clear this day">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </button>
+          <svg class="day-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="15" height="15"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="day-card-body">
+          <div class="day-notes-section">
+            <div class="day-notes-lbl">📝 Session notes</div>
+            <textarea class="day-notes-ta"
+                      placeholder="Form tips, cues, things to remember…"
+                      oninput="saveDayNote('${date}', this.value)">${note}</textarea>
+          </div>
+          ${exHtml}
+        </div>
+      </div>`;
+          })
+          .join("");
+      }
+
+      function toggleSets(btn) {
+        const list = btn.nextElementSibling;
+        const open = list.classList.toggle("open");
+        btn.classList.toggle("open", open);
+        const count = list.children.length;
+        btn.innerHTML = `
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14" style="transition:transform 0.2s;transform:${open ? "rotate(180deg)" : "none"}"><polyline points="6 9 12 15 18 9"/></svg>
+    ${open ? "Hide sets" : "Show all " + count + " set" + (count !== 1 ? "s" : "")}`;
+      }
+
+      function renderGoalInline(exercise) {
+        const goal = goals.find((g) => g.exercise === exercise);
+        if (!goal) return "";
+        const bestKg = getBestKgForExercise(
+          entries.filter((e) => e.exercise === exercise),
+        );
+        const goalKg = toKg(goal.weight, goal.unit);
+        const pct =
+          goalKg > 0 ? Math.min(100, Math.round((bestKg / goalKg) * 100)) : 0;
+        const done = pct >= 100;
+        return `
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:4px;font-weight:700;">🎯 Goal: ${goal.weight}${goal.unit} \u00d7 ${goal.reps} reps</div>
+      <div class="progress-bar-wrap"><div class="progress-bar${done ? " complete" : ""}" style="width:${pct}%"></div></div>
+      <div class="progress-label"><span>${bestKg.toFixed(1)} kg best</span><span class="pct${done ? " done" : ""}">${done ? "\u2705 DONE!" : pct + "%"}</span></div>
+    </div>`;
+      }
+
+      function deleteEntry(id) {
+        const e = entries.find((x) => x.id === id);
+        if (!e) return;
+        showConfirm(
+          "Delete Session?",
+          `Remove ${e.exercise} on ${formatDate(e.date)}?`,
+          () => {
+            entries = entries.filter((x) => x.id !== id);
+            save();
+            renderHistory();
+            showToast("Session deleted");
+          },
+        );
+      }
+
+      // ─────────────────────────────────────────────
+      //  CHARTS
+      // ─────────────────────────────────────────────
+      function populateChartSelect() {
+        const sel = document.getElementById("chartExercise");
+        const cur = sel.value;
+        const exs = [...new Set(entries.map((e) => e.exercise))].sort();
+        sel.innerHTML =
+          '<option value="">— Choose an exercise —</option>' +
+          exs
+            .map(
+              (n) =>
+                `<option value="${n}"${n === cur ? " selected" : ""}>${n}</option>`,
+            )
+            .join("");
+      }
+
+      function renderChart() {
+        const exercise = document.getElementById("chartExercise").value;
+        const container = document.getElementById("chartContent");
+
+        if (!exercise) {
+          container.innerHTML =
+            entries.length === 0
+              ? `<div class="empty-state"><span class="empty-icon">📊</span><p>Log some sessions to see charts.</p></div>`
+              : `<div class="empty-state"><span class="empty-icon">📊</span><p>Select an exercise above.</p></div>`;
+          return;
+        }
+
+        const exList = entries
+          .filter((e) => e.exercise === exercise)
+          .sort((a, b) => new Date(a.date) - new Date(b.date));
+        if (exList.length === 0) {
+          container.innerHTML = `<div class="empty-state"><p>No sessions for this exercise.</p></div>`;
+          return;
+        }
+
+        const byDate = {};
+        exList.forEach((e) => {
+          const pr = getPrSet(e.sets);
+          const kg = toKg(pr.weight, e.unit);
+          if (!byDate[e.date] || kg > byDate[e.date]) byDate[e.date] = kg;
+        });
+
+        const dates = Object.keys(byDate).sort();
+        const vals = dates.map((d) => byDate[d]);
+        const maxVal = Math.max(...vals);
+        const lastVal = vals[vals.length - 1];
+
+        const goal = goals.find((g) => g.exercise === exercise);
+        const goalKg = goal ? toKg(goal.weight, goal.unit) : null;
+        const pct = goalKg
+          ? Math.min(100, Math.round((maxVal / goalKg) * 100))
+          : null;
+
+        const goalHtml = goal
+          ? `
+    <div style="margin-top:12px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:700;">🎯 Goal: ${goal.weight}${goal.unit} \u00d7 ${goal.reps} reps</div>
+      <div class="progress-bar-wrap"><div class="progress-bar${pct >= 100 ? " complete" : ""}" style="width:${pct}%"></div></div>
+      <div class="progress-label"><span>${maxVal.toFixed(1)} kg best</span><span class="pct${pct >= 100 ? " done" : ""}">${pct >= 100 ? "\u2705 REACHED!" : pct + "%"}</span></div>
+    </div>`
+          : "";
+
+        container.innerHTML = `
+    <div class="chart-wrap">
+      <div style="font-size:15px;font-weight:800;margin-bottom:2px;">${exercise}</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Top set weight per session (kg)</div>
+      <div class="chart-canvas-wrap"><canvas id="myChart"></canvas></div>
+      <div class="chart-stats">
+        <div class="stat-box"><span class="stat-val">${lastVal.toFixed(1)}<small style="font-size:10px">kg</small></span><span class="stat-label">Latest</span></div>
+        <div class="stat-box"><span class="stat-val">${maxVal.toFixed(1)}<small style="font-size:10px">kg</small></span><span class="stat-label">Best</span></div>
+        <div class="stat-box"><span class="stat-val">${exList.length}</span><span class="stat-label">Sessions</span></div>
+      </div>
+      ${goalHtml}
+    </div>`;
+
+        if (chartInstance) {
+          chartInstance.destroy();
+          chartInstance = null;
+        }
+
+        chartInstance = new Chart(
+          document.getElementById("myChart").getContext("2d"),
+          {
+            type: "line",
+            data: {
+              labels: dates.map(formatDate),
+              datasets: [
+                {
+                  label: "Top set (kg)",
+                  data: vals,
+                  borderColor: "#ff5722",
+                  backgroundColor: "rgba(255,87,34,0.10)",
+                  pointBackgroundColor: "#ff5722",
+                  pointRadius: 5,
+                  pointHoverRadius: 7,
+                  borderWidth: 2.5,
+                  fill: true,
+                  tension: 0.3,
+                },
+                ...(goalKg
+                  ? [
+                      {
+                        label: `Goal (${goalKg.toFixed(1)} kg)`,
+                        data: Array(dates.length).fill(goalKg),
+                        borderColor: "#4caf50",
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false,
+                      },
+                    ]
+                  : []),
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  labels: {
+                    color: "#f0f0f0",
+                    font: { size: 12, weight: "bold" },
+                  },
+                },
+                tooltip: {
+                  backgroundColor: "#1a1a1a",
+                  borderColor: "#333",
+                  borderWidth: 1,
+                  titleColor: "#ff5722",
+                  bodyColor: "#f0f0f0",
+                },
+              },
+              scales: {
+                x: {
+                  ticks: { color: "#999", maxRotation: 45, font: { size: 11 } },
+                  grid: { color: "#1f1f1f" },
+                },
+                y: {
+                  ticks: { color: "#999", font: { size: 11 } },
+                  grid: { color: "#1f1f1f" },
+                },
+              },
+            },
+          },
+        );
+      }
+
+      // ─────────────────────────────────────────────
+      //  GOALS
+      // ─────────────────────────────────────────────
+      function saveGoal() {
+        const exercise = document.getElementById("goalExercise").value;
+        const weight = parseFloat(document.getElementById("goalWeight").value);
+        const reps = parseInt(document.getElementById("goalReps").value);
+        if (!exercise) {
+          showToast("Select an exercise", "error");
+          return;
+        }
+        if (isNaN(weight) || weight <= 0) {
+          showToast("Enter a valid weight", "error");
+          return;
+        }
+        if (isNaN(reps) || reps < 1) {
+          showToast("Enter valid reps", "error");
+          return;
+        }
+
+        const idx = goals.findIndex((g) => g.exercise === exercise);
+        const goal = { exercise, weight, unit: goalUnit, reps };
+        if (idx >= 0) goals[idx] = goal;
+        else goals.push(goal);
+        save();
+
+        document.getElementById("goalExercise").value = "";
+        document.getElementById("goalWeight").value = "";
+        document.getElementById("goalReps").value = "";
+        showToast("🎯 Goal saved!");
+        renderGoals();
+      }
+
+      function renderGoals() {
+        const container = document.getElementById("goalsContent");
+        if (goals.length === 0) {
+          container.innerHTML = `<div class="empty-state"><span class="empty-icon">🎯</span><p>No goals yet.<br><strong>Set a target above!</strong></p></div>`;
+          return;
+        }
+        container.innerHTML =
+          '<div class="section-title">Your Goals</div>' +
+          goals
+            .map((g, idx) => {
+              const bestKg = getBestKgForExercise(
+                entries.filter((e) => e.exercise === g.exercise),
+              );
+              const goalKg = toKg(g.weight, g.unit);
+              const pct =
+                goalKg > 0
+                  ? Math.min(100, Math.round((bestKg / goalKg) * 100))
+                  : 0;
+              const done = pct >= 100;
+              return `
+      <div class="goal-item">
+        <div class="goal-header">
+          <div class="goal-exercise">${g.exercise}</div>
+          <button class="icon-btn" onclick="deleteGoal(${idx})">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </button>
+        </div>
+        <div class="goal-target">Target: <strong>${g.weight}${g.unit} \u00d7 ${g.reps} rep${g.reps > 1 ? "s" : ""}</strong></div>
+        <div class="progress-bar-wrap"><div class="progress-bar${done ? " complete" : ""}" style="width:${pct}%"></div></div>
+        <div class="progress-label"><span>${bestKg.toFixed(1)} kg best</span><span class="pct${done ? " done" : ""}">${done ? "\u2705 REACHED!" : pct + "%"}</span></div>
+      </div>`;
+            })
+            .join("");
+      }
+
+      function deleteGoal(idx) {
+        showConfirm(
+          "Delete Goal?",
+          `Remove goal for "${goals[idx].exercise}"?`,
+          () => {
+            goals.splice(idx, 1);
+            save();
+            renderGoals();
+            showToast("Goal deleted");
+          },
+        );
+      }
+
+      // ─────────────────────────────────────────────
+      //  QUOTES
+      // ─────────────────────────────────────────────
+      function addQuote() {
+        const text = document.getElementById("newQuote").value.trim();
+        if (!text) {
+          showToast("Enter a quote first", "error");
+          return;
+        }
+        quotes.push({ id: Date.now(), text });
+        save();
+        document.getElementById("newQuote").value = "";
+        renderQuotes();
+        updateHeaderQuote();
+        showToast("Quote added! 💪");
+      }
+
+      function deleteQuote(id) {
+        showConfirm("Delete Quote?", "Remove this motivational quote?", () => {
+          quotes = quotes.filter((q) => q.id !== id);
+          save();
+          renderQuotes();
+          updateHeaderQuote();
+          showToast("Quote deleted");
+        });
+      }
+
+      function renderQuotes() {
+        const el = document.getElementById("quoteText");
+        if (quotes.length > 0) {
+          if (quotesIdx >= quotes.length) quotesIdx = 0;
+          el.textContent = "\u201c" + quotes[quotesIdx].text + "\u201d";
+        } else {
+          el.textContent = "Add your first quote below!";
+        }
+        const list = document.getElementById("quotesList");
+        list.innerHTML =
+          quotes.length === 0
+            ? `<div class="empty-state"><p>No quotes yet.<br><strong>Add something inspiring!</strong></p></div>`
+            : quotes
+                .map(
+                  (q) => `
+        <div class="quote-item">
+          <div class="quote-item-text">\u201c${q.text}\u201d</div>
+          <button class="icon-btn" onclick="deleteQuote(${q.id})">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </button>
+        </div>`,
+                )
+                .join("");
+      }
+
+      function shuffleQuote() {
+        if (quotes.length < 2) return;
+        let n;
+        do {
+          n = Math.floor(Math.random() * quotes.length);
+        } while (n === quotesIdx);
+        quotesIdx = n;
+        renderQuotes();
+      }
+
+      // ─────────────────────────────────────────────
+      //  HELPERS
+      // ─────────────────────────────────────────────
+      function toKg(w, u) {
+        return u === "lbs" ? w * 0.453592 : w;
+      }
+
+      function getPrSet(sets) {
+        return sets.reduce(
+          (best, s) => (s.weight > best.weight ? s : best),
+          sets[0],
+        );
+      }
+
+      function getBestEntry(list) {
+        return list.reduce((best, e) => {
+          return toKg(getPrSet(e.sets).weight, e.unit) >
+            toKg(getPrSet(best.sets).weight, best.unit)
+            ? e
+            : best;
+        }, list[0]);
+      }
+
+      function getBestKgForExercise(list) {
+        if (!list.length) return 0;
+        return list.reduce(
+          (max, e) => Math.max(max, toKg(getPrSet(e.sets).weight, e.unit)),
+          0,
+        );
+      }
+
+      function formatDate(d) {
+        if (!d) return "";
+        const [y, m, day] = d.split("-");
+        return (
+          [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ][+m - 1] +
+          " " +
+          +day +
+          ", " +
+          y
+        );
+      }
+
+      function showToast(msg, type) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.style.background =
+          type === "error" ? "var(--danger)" : "var(--success)";
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2500);
+      }
+
+      function showConfirm(title, body, cb) {
+        document.getElementById("confirmTitle").textContent = title;
+        document.getElementById("confirmBody").textContent = body;
+        pendingConfirmCb = cb;
+        document.getElementById("overlay").classList.add("show");
+      }
+
+      function confirmAction() {
+        if (pendingConfirmCb) pendingConfirmCb();
+        pendingConfirmCb = null;
+        document.getElementById("overlay").classList.remove("show");
+      }
+
+      function closeConfirm(e) {
+        if (!e || e.target === document.getElementById("overlay")) {
+          pendingConfirmCb = null;
+          document.getElementById("overlay").classList.remove("show");
+        }
+      }
+
+      // ─────────────────────────────────────────────
+      //  BAR CALCULATOR
+      // ─────────────────────────────────────────────
+      const PLATES = [
+        { kg: 25, lbs: 55.1, color: "#c62828", border: "#ef9a9a", text: "25" },
+        { kg: 20, lbs: 44.1, color: "#1565c0", border: "#90caf9", text: "20" },
+        { kg: 15, lbs: 33.1, color: "#e65100", border: "#ffcc80", text: "15" },
+        { kg: 10, lbs: 22.0, color: "#2e7d32", border: "#a5d6a7", text: "10" },
+        { kg: 5, lbs: 11.0, color: "#546e7a", border: "#b0bec5", text: "5" },
+        { kg: 2.5, lbs: 5.5, color: "#37474f", border: "#78909c", text: "2.5" },
+        {
+          kg: 1.25,
+          lbs: 2.75,
+          color: "#78909c",
+          border: "#cfd8dc",
+          text: "1¼",
+        },
+      ];
+
+      const LBS_PLATES = [
+        {
+          lbs: 45,
+          kg: 45 / 2.20462,
+          color: "#1a237e",
+          border: "#7986cb",
+          text: "45",
+        },
+        {
+          lbs: 25,
+          kg: 25 / 2.20462,
+          color: "#c62828",
+          border: "#ef9a9a",
+          text: "25",
+        },
+        {
+          lbs: 10,
+          kg: 10 / 2.20462,
+          color: "#2e7d32",
+          border: "#a5d6a7",
+          text: "10",
+        },
+        {
+          lbs: 5,
+          kg: 5 / 2.20462,
+          color: "#546e7a",
+          border: "#b0bec5",
+          text: "5",
+        },
+        {
+          lbs: 2.5,
+          kg: 2.5 / 2.20462,
+          color: "#37474f",
+          border: "#78909c",
+          text: "2½",
+        },
+      ];
+
+      // plate heights and widths for barbell canvas drawing
+      const PLATE_DIMS = {
+        25: { ph: 72, pw: 14 },
+        20: { ph: 62, pw: 14 },
+        15: { ph: 54, pw: 13 },
+        10: { ph: 46, pw: 13 },
+        5: { ph: 36, pw: 11 },
+        2.5: { ph: 28, pw: 11 },
+        1.25: { ph: 22, pw: 9 },
+      };
+
+      let barPlateCounts = {};
+
+      function switchPlateTab(unit) {
+        document.getElementById("plateGridWrap").style.display =
+          unit === "kg" ? "" : "none";
+        document.getElementById("lbsPlateGridWrap").style.display =
+          unit === "lbs" ? "" : "none";
+        document
+          .getElementById("plateTabKg")
+          .classList.toggle("active", unit === "kg");
+        document
+          .getElementById("plateTabLbs")
+          .classList.toggle("active", unit === "lbs");
+      }
+
+      function initBar() {
+        PLATES.forEach((p) => {
+          barPlateCounts[p.kg] = 0;
+        });
+        LBS_PLATES.forEach((p) => {
+          lbsBarPlateCounts[p.lbs] = 0;
+        });
+        const inp = document.getElementById("barWeightInput");
+        if (inp) inp.value = barWeightKg;
+        renderPlateGrid();
+        renderLbsPlateGrid();
+        updateBarDisplay();
+      }
+
+      function barWeightChanged(val) {
+        barWeightKg = parseFloat(val) || 0;
+        localStorage.setItem("pr_bar_weight", barWeightKg);
+        updateBarDisplay();
+      }
+
+      function changePlate(kg, delta) {
+        barPlateCounts[kg] = Math.max(0, (barPlateCounts[kg] || 0) + delta);
+        const id = "pc-" + String(kg).replace(".", "_");
+        document.getElementById(id).textContent = barPlateCounts[kg];
+        updateBarDisplay();
+      }
+
+      function changeLbsPlate(lbs, delta) {
+        lbsBarPlateCounts[lbs] = Math.max(
+          0,
+          (lbsBarPlateCounts[lbs] || 0) + delta,
+        );
+        const id = "lbs-pc-" + String(lbs).replace(".", "_");
+        document.getElementById(id).textContent = lbsBarPlateCounts[lbs];
+        updateBarDisplay();
+      }
+
+      function resetBarPlates() {
+        PLATES.forEach((p) => {
+          barPlateCounts[p.kg] = 0;
+          document.getElementById(
+            "pc-" + String(p.kg).replace(".", "_"),
+          ).textContent = "0";
+        });
+        LBS_PLATES.forEach((p) => {
+          lbsBarPlateCounts[p.lbs] = 0;
+          document.getElementById(
+            "lbs-pc-" + String(p.lbs).replace(".", "_"),
+          ).textContent = "0";
+        });
+        updateBarDisplay();
+      }
+
+      // ── BAR TRACK MOVEMENT ───────────────────────────────
+      let barTrackExercise = "";
+      let _barTrackAllEx = [];
+
+      function openBarTrack() {
+        let perSideKg = 0;
+        PLATES.forEach((p) => {
+          perSideKg += (barPlateCounts[p.kg] || 0) * p.kg;
+        });
+        LBS_PLATES.forEach((p) => {
+          perSideKg += (lbsBarPlateCounts[p.lbs] || 0) * p.kg;
+        });
+        const totalKg = barWeightKg + perSideKg * 2;
+        const totalLbs = totalKg * 2.20462;
+        document.getElementById("barTrackWeight").textContent =
+          totalKg.toFixed(1) + " kg  /  " + totalLbs.toFixed(1) + " lbs";
+        barTrackExercise = "";
+        document.getElementById("barTrackForm").style.display = "none";
+        document.getElementById("barTrackSearch").value = "";
+        _barTrackAllEx = getAllExercises();
+        renderBarTrackList(_barTrackAllEx);
+        document.getElementById("barTrackOverlay").classList.add("open");
+      }
+
+      function closeBarTrack() {
+        document.getElementById("barTrackOverlay").classList.remove("open");
+      }
+
+      function barTrackOverlayBg(e) {
+        if (e.target === document.getElementById("barTrackOverlay"))
+          closeBarTrack();
+      }
+
+      function renderBarTrackList(exList) {
+        const el = document.getElementById("barTrackExList");
+        if (!exList.length) {
+          el.innerHTML =
+            '<div style="color:var(--text2);font-size:13px;padding:8px 0;">No matches.</div>';
+          return;
+        }
+        el.innerHTML = exList
+          .map(
+            (ex) =>
+              `<button class="ex-tile${ex === barTrackExercise ? " selected" : ""}"><span>${ex}</span></button>`,
+          )
+          .join("");
+        el.querySelectorAll(".ex-tile").forEach((btn, i) => {
+          btn.addEventListener("click", () => {
+            barTrackExercise = exList[i];
+            document.getElementById("barTrackExLabel").textContent = exList[i];
+            document.getElementById("barTrackForm").style.display = "";
+            document.getElementById("barTrackReps").value = "";
+            document.getElementById("barTrackReps").focus();
+            renderBarTrackList(exList);
+          });
+        });
+      }
+
+      function filterBarTrackList(q) {
+        const val = q.toLowerCase().trim();
+        renderBarTrackList(
+          _barTrackAllEx.filter((ex) => !val || ex.toLowerCase().includes(val)),
+        );
+      }
+
+      function logBarLoad() {
+        if (!barTrackExercise) {
+          showToast("Pick an exercise first!");
+          return;
+        }
+        const reps = parseInt(document.getElementById("barTrackReps").value);
+        if (!reps || reps < 1) {
+          showToast("Enter reps!");
+          return;
+        }
+        let perSideKg = 0;
+        PLATES.forEach((p) => {
+          perSideKg += (barPlateCounts[p.kg] || 0) * p.kg;
+        });
+        LBS_PLATES.forEach((p) => {
+          perSideKg += (lbsBarPlateCounts[p.lbs] || 0) * p.kg;
+        });
+        const totalKg = barWeightKg + perSideKg * 2;
+        const w =
+          unit === "lbs"
+            ? parseFloat((totalKg * 2.20462).toFixed(1))
+            : parseFloat(totalKg.toFixed(1));
+        entries.unshift({
+          id: Date.now(),
+          date: todayStr(),
+          exercise: barTrackExercise,
+          sets: [{ weight: w, reps }],
+          unit,
+          notes: "Bar calculator",
+        });
+        save();
+        closeBarTrack();
+        showToast("Set logged!");
+      }
+
+      function renderPlateGrid() {
+        document.getElementById("plateGrid").innerHTML = PLATES.map((p) => {
+          const id = "pc-" + String(p.kg).replace(".", "_");
+          return `
+      <div class="plate-item">
+        <div class="plate-dot" style="background:${p.color};border-color:${p.border};">${p.text}<br><span style="font-size:7px;opacity:0.8;">kg</span></div>
+        <div class="plate-label">${p.kg} kg<br><span class="plate-sub">${p.lbs} lbs</span></div>
+        <div class="plate-controls">
+          <button class="plate-btn" onclick="changePlate(${p.kg},-1)">−</button>
+          <span class="plate-count" id="${id}">0</span>
+          <button class="plate-btn" onclick="changePlate(${p.kg},1)">+</button>
+        </div>
+      </div>`;
+        }).join("");
+      }
+
+      function renderLbsPlateGrid() {
+        const el = document.getElementById("lbsPlateGrid");
+        if (!el) return;
+        el.innerHTML = LBS_PLATES.map((p) => {
+          const id = "lbs-pc-" + String(p.lbs).replace(".", "_");
+          return `
+      <div class="plate-item">
+        <div class="plate-dot" style="background:${p.color};border-color:${p.border};">${p.text}<br><span style="font-size:7px;opacity:0.8;">lbs</span></div>
+        <div class="plate-label">${p.lbs} lbs<br><span class="plate-sub">${p.kg.toFixed(2)} kg</span></div>
+        <div class="plate-controls">
+          <button class="plate-btn" onclick="changeLbsPlate(${p.lbs},-1)">−</button>
+          <span class="plate-count" id="${id}">0</span>
+          <button class="plate-btn" onclick="changeLbsPlate(${p.lbs},1)">+</button>
+        </div>
+      </div>`;
+        }).join("");
+      }
+
+      function updateBarDisplay() {
+        let perSideKg = 0;
+        PLATES.forEach((p) => {
+          perSideKg += (barPlateCounts[p.kg] || 0) * p.kg;
+        });
+        LBS_PLATES.forEach((p) => {
+          perSideKg += (lbsBarPlateCounts[p.lbs] || 0) * p.kg;
+        });
+
+        const totalKg = barWeightKg + perSideKg * 2;
+        const totalLbs = totalKg * 2.20462;
+
+        document.getElementById("barTotalKg").textContent =
+          totalKg.toFixed(1) + " kg";
+        document.getElementById("barTotalLbs").textContent =
+          totalLbs.toFixed(1) + " lbs";
+        document.getElementById("barSub").textContent =
+          barWeightKg.toFixed(1) +
+          " kg bar · " +
+          perSideKg.toFixed(2) +
+          " kg per side";
+
+        // Breakdown
+        const loadedKg = PLATES.filter((p) => barPlateCounts[p.kg] > 0);
+        const loadedLbs = LBS_PLATES.filter(
+          (p) => lbsBarPlateCounts[p.lbs] > 0,
+        );
+        const brkEl = document.getElementById("barBreakdown");
+        if (loadedKg.length === 0 && loadedLbs.length === 0) {
+          brkEl.innerHTML =
+            '<span style="color:var(--text2)">Add plates above to see the breakdown.</span>';
+        } else {
+          const kgLines = loadedKg.map(
+            (p) =>
+              `<span style="color:${p.color};font-weight:800;">${p.kg} kg</span> × ${barPlateCounts[p.kg]} per side = <strong>${(barPlateCounts[p.kg] * p.kg * 2).toFixed(2)} kg</strong>`,
+          );
+          const lbsLines = loadedLbs.map(
+            (p) =>
+              `<span style="color:${p.color};font-weight:800;">${p.lbs} lbs</span> × ${lbsBarPlateCounts[p.lbs]} per side = <strong>${(lbsBarPlateCounts[p.lbs] * p.lbs * 2).toFixed(1)} lbs</strong>`,
+          );
+          brkEl.innerHTML =
+            [...kgLines, ...lbsLines].join("<br>") +
+            (barWeightKg > 0
+              ? `<br><span style="color:var(--text2)">Bar: ${barWeightKg} kg</span>`
+              : "") +
+            `<br><strong style="color:var(--accent)">Total: ${totalKg.toFixed(2)} kg &nbsp;/&nbsp; ${totalLbs.toFixed(1)} lbs</strong>`;
+        }
+
+        drawBarbell();
+      }
+
+      function drawBarbell() {
+        const canvas = document.getElementById("barbellCanvas");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const W = canvas.width,
+          H = canvas.height,
+          cx = W / 2,
+          cy = H / 2;
+
+        ctx.clearRect(0, 0, W, H);
+
+        // Standard barbell
+        ctx.fillStyle = "#7a7a7a";
+        ctx.fillRect(10, cy - 3, W - 20, 6);
+
+        // Knurling center
+        ctx.fillStyle = "#5a5a5a";
+        for (let x = cx - 28; x < cx + 28; x += 5) {
+          ctx.fillRect(x, cy - 3, 3, 6);
+        }
+
+        // Sleeves (thick outer sections)
+        ctx.fillStyle = "#aaa";
+        ctx.fillRect(10, cy - 6, 36, 12);
+        ctx.fillRect(W - 46, cy - 6, 36, 12);
+
+        // Collar locks (dark end caps)
+        ctx.fillStyle = "#666";
+        ctx.fillRect(10, cy - 6, 10, 12);
+        ctx.fillRect(W - 20, cy - 6, 10, 12);
+
+        // Build plate stack (heaviest first from center)
+        const stack = [];
+        PLATES.forEach((p) => {
+          for (let i = 0; i < (barPlateCounts[p.kg] || 0); i++) stack.push(p);
+        });
+
+        const gapFromCenter = 32;
+        const maxX = W - 12;
+
+        // Right side
+        let rx = cx + gapFromCenter;
+        for (const p of stack) {
+          const d = PLATE_DIMS[p.kg];
+          if (rx + d.pw > maxX) break;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(rx, cy - d.ph / 2, d.pw, d.ph, 2);
+          else ctx.rect(rx, cy - d.ph / 2, d.pw, d.ph);
+          ctx.fill();
+          // Inner highlight
+          ctx.fillStyle = "rgba(255,255,255,0.12)";
+          ctx.fillRect(rx + 1, cy - d.ph / 2 + 1, d.pw - 2, d.ph / 2 - 1);
+          // Label
+          if (d.ph >= 30) {
+            ctx.fillStyle = "rgba(255,255,255,0.92)";
+            ctx.font = `bold ${d.ph >= 46 ? 8 : 7}px -apple-system,sans-serif`;
+            ctx.textAlign = "center";
+            ctx.fillText(p.text, rx + d.pw / 2, cy + 3);
+          }
+          rx += d.pw + 2;
+        }
+
+        // Left side (mirror)
+        let lx = cx - gapFromCenter;
+        for (const p of stack) {
+          const d = PLATE_DIMS[p.kg];
+          if (lx - d.pw < 12) break;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          if (ctx.roundRect)
+            ctx.roundRect(lx - d.pw, cy - d.ph / 2, d.pw, d.ph, 2);
+          else ctx.rect(lx - d.pw, cy - d.ph / 2, d.pw, d.ph);
+          ctx.fill();
+          ctx.fillStyle = "rgba(255,255,255,0.12)";
+          ctx.fillRect(
+            lx - d.pw + 1,
+            cy - d.ph / 2 + 1,
+            d.pw - 2,
+            d.ph / 2 - 1,
+          );
+          if (d.ph >= 30) {
+            ctx.fillStyle = "rgba(255,255,255,0.92)";
+            ctx.font = `bold ${d.ph >= 46 ? 8 : 7}px -apple-system,sans-serif`;
+            ctx.textAlign = "center";
+            ctx.fillText(p.text, lx - d.pw / 2, cy + 3);
+          }
+          lx -= d.pw + 2;
+        }
+      }
+
+      init();
+    </script>
   </body>
 </html>
